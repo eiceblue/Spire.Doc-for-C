@@ -1,28 +1,28 @@
 #include "pch.h"
+
 using namespace Spire::Doc;
 
-int main() {
-	wstring input_path = DATAPATH;
-	wstring inputFile = input_path  + L"CommentTemplate.docx";
-	wstring output_path = OUTPUTPATH;
-	wstring outputFile = output_path + L"Comment.docx";
+void InsertComments(intrusive_ptr<Section> section)
+{
+	//Insert comment.
+	intrusive_ptr<Paragraph> paragraph = section->GetParagraphs()->GetItemInParagraphCollection(1);
+	intrusive_ptr<Spire::Doc::Comment> comment = paragraph->AppendComment(L"Spire.Doc for .NET");
+	comment->GetFormat()->SetAuthor(L"E-iceblue");
+	comment->GetFormat()->SetInitial(L"CM");
+}
+
+int main()
+{
+	std::wstring outputFile = OUTPUTPATH"/Comment.docx";
+	std::wstring inputFile = DATAPATH"/CommentTemplate.docx";
 
 	//Load the document from disk.
-	Document* document = new Document();
+	intrusive_ptr<Document> document = new Document();
 	document->LoadFromFile(inputFile.c_str());
 
-	InsertComments(document->GetSections()->GetItem(0));
+	InsertComments(document->GetSections()->GetItemInSectionCollection(0));
 
 	//Save the document.
 	document->SaveToFile(outputFile.c_str(), FileFormat::Docx);
 	document->Close();
-	delete document;
 }
-
-void InsertComments(Section* section) {
-	//Insert comment.
-	Paragraph* paragraph = section->GetParagraphs()->GetItem(1);
-	Spire::Doc::Comment* comment = paragraph->AppendComment(L"Spire.Doc for C++");
-	comment->GetFormat()->SetAuthor(L"E-iceblue");
-	comment->GetFormat()->SetInitial(L"CM");
-}	

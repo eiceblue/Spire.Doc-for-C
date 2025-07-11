@@ -1,18 +1,17 @@
 #include "pch.h"
 using namespace Spire::Doc;
 
-int main() {
-	wstring input_path = DATAPATH;
-	wstring inputFile = input_path  + L"Bookmark.docx";
-	wstring output_path = OUTPUTPATH;
-	wstring outputFile = output_path + L"ReplaceBookmarkContent.docx";
+int main()
+{
+	std::wstring outputFile = OUTPUTPATH"/ReplaceBookmarkContent.docx";
+	std::wstring inputFile = DATAPATH"/Bookmark.docx";
 
 	//Load the document from disk.
-	Document* doc = new Document();
+	intrusive_ptr<Document> doc = new Document();
 	doc->LoadFromFile(inputFile.c_str());
 
 	//Locate the bookmark.
-	BookmarksNavigator* bookmarkNavigator = new BookmarksNavigator(doc);
+	intrusive_ptr<BookmarksNavigator> bookmarkNavigator = new BookmarksNavigator(doc);
 	bookmarkNavigator->MoveToBookmark(L"Test");
 
 	//Replace the context with new.
@@ -21,6 +20,4 @@ int main() {
 	//Save the document.
 	doc->SaveToFile(outputFile.c_str(), FileFormat::Docx);
 	doc->Close();
-	delete doc;
-	delete bookmarkNavigator;
 }

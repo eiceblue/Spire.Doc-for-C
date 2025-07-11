@@ -9,26 +9,27 @@ int main() {
 
 	RemoveDirectoryW(outputFile.c_str());
 
-	Document* document = new Document();
+	intrusive_ptr<Document> document = new Document();
 	//Load the file from disk.
 	document->LoadFromFile(inputFile.c_str());
-	wstring* stringBuilder = new wstring();
+	wstring stringBuilder;
 
-	stringBuilder->append(L"This document has following variables:\n");
+	stringBuilder.append(L"This document has following variables:\n");
 	int variablesCount = document->GetVariables()->GetCount();
 	for (int i = 0; i < variablesCount; i++)
 	{
-		wstring name = document->GetVariables()->GetNameByIndex(i);
-		wstring value = document->GetVariables()->GetValueByIndex(i);
-		stringBuilder->append(L"Name: " + name + L", " + L"Value: " + value);
-		stringBuilder->append(L"\n");
+		std::wstring name = document->GetVariables()->GetNameByIndex(i);
+		std::wstring value = document->GetVariables()->GetValueByIndex(i);
+		stringBuilder.append(L"Name: " + name + L", " + L"Value: " + value);
+		stringBuilder.append(L"\n");
 	}
 	//Save to file.
 	wofstream out;
 	out.open(outputFile);
 	out.flush();
-	out << stringBuilder->c_str();
+	out << stringBuilder.c_str();
 	out.close();
 	document->Close();
-	delete document;
+
+	//delete stringBuilder;
 }

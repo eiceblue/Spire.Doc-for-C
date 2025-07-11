@@ -9,13 +9,20 @@ int main() {
 	wstring outputFile = output_path + L"ToImage.png";
 
 	//Create word document
-	Document* document = new Document();
+	intrusive_ptr<Document> document = new Document();
 	document->LoadFromFile(inputFile.c_str());
 
-	//Save doc file.
-	Stream* imageStream = document->SaveToImages(0, ImageFormat::GetPng());
-	imageStream->Save(outputFile.c_str());
+	intrusive_ptr<Stream> imageStream = document->SaveImageToStreams(0, ImageType::Bitmap);
+	//Obtain image data in the default format of png,you can use it to convert other image format
+	std::vector<byte> imgBytes = imageStream->ToArray();
+	std::ofstream outFile(outputFile, std::ios::binary);
+	if (outFile.is_open())
+	{
+		outFile.write(reinterpret_cast<const char*>(imgBytes.data()), imgBytes.size());
+		outFile.close();
+	}
 	document->Close();
-	delete document;
 	imageStream->Dispose();
+
+
 }

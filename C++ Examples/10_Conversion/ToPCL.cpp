@@ -7,9 +7,9 @@ int main() {
 	wstring output_path = OUTPUTPATH;
 	wstring outputFile = output_path + L"ToPCL.pcl";
 
-	Document* doc = new Document();
+	intrusive_ptr<Document> doc = new Document();
 	doc->LoadFromFile(inputFile.c_str());
 	doc->SaveToFile(outputFile.c_str(), FileFormat::PCL);
 	doc->Close();
-	delete doc;
+
 }

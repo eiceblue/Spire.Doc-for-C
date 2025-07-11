@@ -1,14 +1,13 @@
 #include "pch.h"
 using namespace Spire::Doc;
-using namespace Spire::Common;
 
-int main() {
-	wstring output_path = OUTPUTPATH;
-	wstring outputFile = output_path + L"PageBorderSurround.docx";
+int main()
+{
+	std::wstring outputFile = OUTPUTPATH"/PageBorderSurround.docx";
 
 	//Create a new document
-	Document* doc = new Document();
-	Section* section = doc->AddSection();
+	intrusive_ptr<Document> doc = new Document();
+	intrusive_ptr<Section> section = doc->AddSection();
 
 	//Add a sample page border to the document
 	section->GetPageSetup()->GetBorders()->SetBorderType(BorderStyle::Wave);
@@ -17,17 +16,17 @@ int main() {
 	section->GetPageSetup()->GetBorders()->GetRight()->SetSpace(20);
 
 	//Add a header and set its format
-	Paragraph* paragraph1 = section->GetHeadersFooters()->GetHeader()->AddParagraph();
+	intrusive_ptr<Paragraph> paragraph1 = section->GetHeadersFooters()->GetHeader()->AddParagraph();
 	paragraph1->GetFormat()->SetHorizontalAlignment(HorizontalAlignment::Right);
-	TextRange* headerText = paragraph1->AppendText(L"Header isn't included in page border");
+	intrusive_ptr<TextRange> headerText = paragraph1->AppendText(L"Header isn't included in page border");
 	headerText->GetCharacterFormat()->SetFontName(L"Calibri");
 	headerText->GetCharacterFormat()->SetFontSize(20);
 	headerText->GetCharacterFormat()->SetBold(true);
 
 	//Add a footer and set its format
-	Paragraph* paragraph2 = section->GetHeadersFooters()->GetFooter()->AddParagraph();
+	intrusive_ptr<Paragraph> paragraph2 = section->GetHeadersFooters()->GetFooter()->AddParagraph();
 	paragraph2->GetFormat()->SetHorizontalAlignment(HorizontalAlignment::Left);
-	TextRange* footerText = paragraph2->AppendText(L"Footer is included in page border");
+	intrusive_ptr<TextRange> footerText = paragraph2->AppendText(L"Footer is included in page border");
 	footerText->GetCharacterFormat()->SetFontName(L"Calibri");
 	footerText->GetCharacterFormat()->SetFontSize(20);
 	footerText->GetCharacterFormat()->SetBold(true);
@@ -41,5 +40,4 @@ int main() {
 	//Save and launch document
 	doc->SaveToFile(outputFile.c_str(), FileFormat::Docx);
 	doc->Close();
-	delete doc;
 }

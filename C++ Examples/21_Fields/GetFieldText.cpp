@@ -1,33 +1,36 @@
 #include "pch.h"
+#include <fstream>
+#include <locale>
+#include <codecvt>
+
 using namespace Spire::Doc;
 
-int main() {
-	wstring input_path = DATAPATH;
-	wstring inputFile = input_path + L"SampleB_1.docx";
-	wstring output_path = OUTPUTPATH;
-	wstring outputFile = output_path + L"GetFieldText.txt";
+int main()
+{
+	std::wstring outputFile = OUTPUTPATH"/GetFieldText.txt";
+	std::wstring inputFile = DATAPATH"/SampleB_1.docx";
 
-	wstring* sb = new wstring();
+	std::wstring stringBuilder;
 
 	//Open a Word document
-	Document* document = new Document();
+	intrusive_ptr<Document> document = new Document();
 	document->LoadFromFile(inputFile.c_str());
 
 	//Get all fields in document
-	FieldCollection* fields = document->GetFields();
+	intrusive_ptr<FieldCollection> fields = document->GetFields();
 	for (int i = 0; i < fields->GetCount(); i++)
 	{
-		Field* field = fields->GetItem(0);
+		intrusive_ptr<Field> field = fields->GetItem(0);
 		//Get field text
-		wstring fieldText = field->GetFieldText();
-		sb->append(L"The field text is \"" + fieldText + L"\".\r\n");
+		std::wstring fieldText = field->GetFieldText();
+		stringBuilder.append(L"The field text is \"" + fieldText + L"\".\n");
 	}
-	wofstream out;
-	out.open(outputFile);
-	out.flush();
-	out << sb->c_str();
-	out.close();
+
+	std::wofstream write(outputFile);
+	auto LocUtf8 = locale(locale(""), new std::codecvt_utf8<wchar_t>);
+	write.imbue(LocUtf8);
+	write << stringBuilder;
+	write.close();
+
 	document->Close();
-	delete document;
-	delete sb;
 }

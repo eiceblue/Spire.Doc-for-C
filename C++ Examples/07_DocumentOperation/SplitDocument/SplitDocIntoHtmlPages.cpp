@@ -1,6 +1,9 @@
 #include "pch.h"
 using namespace Spire::Doc;
 
+void SplitDocIntoMultipleHtml(const wstring& input, const wstring& outDirectory);
+bool IsInNextDocument(intrusive_ptr<DocumentObject> element);
+
 int main() {
 	wstring input_path = DATAPATH;
 	wstring inputFile = input_path + L"SplitDocIntoHtmlPages.doc";
@@ -14,20 +17,20 @@ int main() {
 
 void SplitDocIntoMultipleHtml(const wstring& input, const wstring& outDirectory)
 {
-	Document* document = new Document();
+	intrusive_ptr<Document> document = new Document();
 	document->LoadFromFile(input.c_str());
 
-	Document* subDoc = nullptr;
+	intrusive_ptr<Document> subDoc = nullptr;
 	bool first = true;
 	int index = 0;
 	int sectionCount = document->GetSections()->GetCount();
 	for (int i = 0; i < sectionCount; i++)
 	{
-		Section* sec = document->GetSections()->GetItem(i);
+		intrusive_ptr<Section> sec = document->GetSections()->GetItemInSectionCollection(i);
 		int secChildObjectsCount = sec->GetBody()->GetChildObjects()->GetCount();
 		for (int j = 0; j < secChildObjectsCount; j++)
 		{
-			DocumentObject* element = sec->GetBody()->GetChildObjects()->GetItem(j);
+			intrusive_ptr<DocumentObject> element = sec->GetBody()->GetChildObjects()->GetItem(j);
 			if (IsInNextDocument(element))
 			{
 				if (!first)
@@ -47,7 +50,7 @@ void SplitDocIntoMultipleHtml(const wstring& input, const wstring& outDirectory)
 				subDoc = new Document();
 				subDoc->AddSection();
 			}
-			subDoc->GetSections()->GetItem(0)->GetBody()->GetChildObjects()->Add(element->Clone());
+			subDoc->GetSections()->GetItemInSectionCollection(0)->GetBody()->GetChildObjects()->Add(element->Clone());
 		}
 	}
 	if (subDoc != nullptr)
@@ -59,15 +62,15 @@ void SplitDocIntoMultipleHtml(const wstring& input, const wstring& outDirectory)
 		wstring filePath = outDirectory + L"out-" + to_wstring(index++) + L".html";
 		subDoc->SaveToFile(filePath.c_str(), FileFormat::Html);
 		subDoc->Close();
-		delete subDoc;
 	}
 }
 
-bool IsInNextDocument(DocumentObject* element)
+bool IsInNextDocument(intrusive_ptr<DocumentObject> element)
 {
-	if (dynamic_cast<Paragraph*>(element) != nullptr)
+
+	if (Object::CheckType<Paragraph>(element))
 	{
-		Paragraph* p = dynamic_cast<Paragraph*>(element);
+		intrusive_ptr<Paragraph> p = boost::dynamic_pointer_cast<Paragraph>(element);
 		if (wcscmp(p->GetStyleName(), L"Heading1") == 0)
 		{
 			return true;

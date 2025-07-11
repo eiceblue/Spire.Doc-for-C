@@ -6,13 +6,13 @@ int main() {
 	wstring outputFile = output_path + L"InsertImageIntoTextBox.docx";
 
 	//Create a new document
-	Document* doc = new Document();
+	intrusive_ptr<Document> doc = new Document();
 
-	Section* section = doc->AddSection();
-	Paragraph* paragraph = section->AddParagraph();
+	intrusive_ptr<Section> section = doc->AddSection();
+	intrusive_ptr<Paragraph> paragraph = section->AddParagraph();
 
 	//Append a textbox to paragraph
-	TextBox* tb = paragraph->AppendTextBox(220, 220);
+	intrusive_ptr<TextBox> tb = paragraph->AppendTextBox(220, 220);
 
 	//Set the position of the textbox
 	tb->GetFormat()->SetHorizontalOrigin(HorizontalOrigin::Page);
@@ -24,11 +24,9 @@ int main() {
 	tb->GetFormat()->GetFillEfects()->SetType(BackgroundType::Picture);
 
 	//Fill the textbox with a picture
-	wstring input_path = DATAPATH;
-	wstring imagePath = input_path + L"Spire.Doc.png";
-	tb->GetFormat()->GetFillEfects()->SetPicture(Image::FromFile(imagePath.c_str()));
+	tb->GetFormat()->GetFillEfects()->SetPicture(DATAPATH"/Spire.Doc.png");
 	//Save and launch document
 	doc->SaveToFile(outputFile.c_str(), FileFormat::Docx);
 	doc->Close();
-	delete doc;
+	
 }

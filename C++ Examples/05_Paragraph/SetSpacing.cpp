@@ -1,21 +1,23 @@
 #include "pch.h"
-using namespace Spire::Doc;
-using namespace Spire::Common;
 
-int main() {
+
+using namespace Spire::Doc;
+
+int main()
+{
 	wstring input_path = DATAPATH;
-	wstring inputFile = input_path + L"Template_Docx_1.docx";
 	wstring output_path = OUTPUTPATH;
+	wstring inputFile = input_path + L"Template_Docx_1.docx";
 	wstring outputFile = output_path + L"SetSpacing.docx";
 
 	//Create Word document.
-	Document* document = new Document();
+	intrusive_ptr<Document> document = new Document();
 
 	//Load the file from disk.
 	document->LoadFromFile(inputFile.c_str());
 	//Add the text strings to the paragraph and set the style.
-	Paragraph* para = new Paragraph(document);
-	TextRange* textRange1 = para->AppendText(L"This is an inserted paragraph.");
+	intrusive_ptr<Paragraph> para = new Paragraph(document);
+	intrusive_ptr<TextRange> textRange1 = para->AppendText(L"This is an inserted paragraph.");
 	textRange1->GetCharacterFormat()->SetTextColor(Color::GetBlue());
 	textRange1->GetCharacterFormat()->SetFontSize(15);
 
@@ -26,10 +28,9 @@ int main() {
 	para->GetFormat()->SetAfterSpacing(10);
 
 	//insert the added paragraph to the word document.
-	document->GetSections()->GetItem(0)->GetParagraphs()->Insert(1, para);
+	document->GetSections()->GetItemInSectionCollection(0)->GetParagraphs()->Insert(1, para);
 
 	//Save to file.
 	document->SaveToFile(outputFile.c_str(), FileFormat::Docx2013);
 	document->Close();
-	delete document;
 }

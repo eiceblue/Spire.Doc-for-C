@@ -8,17 +8,16 @@ int main() {
 	wstring outputFile = output_path + L"CloneWordDocument.docx";
 
 	//Create Word document.
-	Document* document = new Document();
+	intrusive_ptr<Document> document = new Document();
 
 	//Load the file from disk.
 	document->LoadFromFile(inputFile.c_str());
 
 	//Clone the word document.
-	Document* newDoc = document->Clone();
+	intrusive_ptr<Document> newDoc = document->CloneDocument();
 
 	//Save the file.
 	newDoc->SaveToFile(outputFile.c_str(), FileFormat::Docx2013);
 	newDoc->Close();
 	document->Close();
-	delete document;
 }

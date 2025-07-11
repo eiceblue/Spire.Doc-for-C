@@ -1,14 +1,15 @@
 #include "pch.h"
+
 using namespace Spire::Doc;
 
-int main() {
-	wstring output_path = OUTPUTPATH;
-	wstring outputFile = output_path + L"AddShapes.docx";
+int main()
+{
+	std::wstring outputFile =OUTPUTPATH"/AddShapes.docx";
 
 	//Create Word document.
-	Document* doc = new Document();
-	Section* sec = doc->AddSection();
-	Paragraph* para = sec->AddParagraph();
+	intrusive_ptr<Document> doc = new Document();
+	intrusive_ptr<Section> sec = doc->AddSection();
+	intrusive_ptr<Paragraph> para = sec->AddParagraph();
 	int x = 60, y = 40, lineCount = 0;
 	for (int i = 1; i < 20; i++)
 	{
@@ -20,7 +21,7 @@ int main() {
 			lineCount = 0;
 		}
 		//Add shape and set its size and position.
-		ShapeObject* shape = para->AppendShape(50, 50, (ShapeType)i);
+		intrusive_ptr<ShapeObject> shape = para->AppendShape(50, 50, (ShapeType)i);
 		shape->SetHorizontalOrigin(HorizontalOrigin::Page);
 		shape->SetHorizontalPosition(x);
 		shape->SetVerticalOrigin(VerticalOrigin::Page);
@@ -36,5 +37,5 @@ int main() {
 	}
 	doc->SaveToFile(outputFile.c_str(), FileFormat::Docx);
 	doc->Close();
-	delete doc;
+
 }

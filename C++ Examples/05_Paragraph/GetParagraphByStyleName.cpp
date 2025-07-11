@@ -1,15 +1,16 @@
 #include "pch.h"
+
+
 using namespace Spire::Doc;
-using namespace Spire::Common;
 
-int main() {
+int main()
+{
 	wstring input_path = DATAPATH;
-	wstring inputFile = input_path + L"Template_Docx_3.docx";
 	wstring output_path = OUTPUTPATH;
+	wstring inputFile = input_path + L"Template_Docx_3.docx";
 	wstring outputFile = output_path + L"GetParagraphByStyleName.txt";
-
 	//Create Word document.
-	Document* document = new Document();
+	intrusive_ptr<Document> document = new Document();
 
 	//Load the file from disk.
 	document->LoadFromFile(inputFile.c_str());
@@ -21,10 +22,10 @@ int main() {
 	//Get paragraphs by style name.
 	for (int i = 0; i < document->GetSections()->GetCount(); i++)
 	{
-		Section* section = document->GetSections()->GetItem(i);
+		intrusive_ptr<Section> section = document->GetSections()->GetItemInSectionCollection(i);
 		for (int j = 0; j < section->GetParagraphs()->GetCount(); j++)
 		{
-			Paragraph* paragraph = section->GetParagraphs()->GetItem(j);
+			intrusive_ptr<Paragraph> paragraph = section->GetParagraphs()->GetItemInParagraphCollection(j);
 			wstring style_name = paragraph->GetStyleName();
 			if (style_name.compare(L"Heading1") == 0)
 			{
@@ -39,6 +40,6 @@ int main() {
 	write << content->c_str();
 	write.close();
 	document->Close();
-	delete document;
-	delete content;
+
 }
+

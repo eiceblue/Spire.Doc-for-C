@@ -1,25 +1,24 @@
 #include "pch.h"
+
 using namespace Spire::Doc;
 
-int main() {
-	wstring input_path = DATAPATH;
-	wstring inputFile = input_path  + L"CommentTemplate.docx";
-	wstring imagePath = input_path + L"E-iceblue.png";
-	wstring output_path = OUTPUTPATH;
-	wstring outputFile = output_path + L"InsertPictureIntoComment.docx";
+int main()
+{
+	std::wstring outputFile = OUTPUTPATH"/InsertPictureIntoComment.docx";
+	std::wstring inputFile = DATAPATH"/CommentTemplate.docx";
 
 	//Load the document
-	Document* doc = new Document();
+	intrusive_ptr<Document> doc = new Document();
 	doc->LoadFromFile(inputFile.c_str());
 
 	//Get the first paragraph and insert comment
-	Paragraph* paragraph = doc->GetSections()->GetItem(0)->GetParagraphs()->GetItem(2);
-	Comment* comment = paragraph->AppendComment(L"This is a comment.");
+	intrusive_ptr<Paragraph> paragraph = doc->GetSections()->GetItemInSectionCollection(0)->GetParagraphs()->GetItemInParagraphCollection(2);
+	intrusive_ptr<Comment> comment = paragraph->AppendComment(L"This is a comment.");
 	comment->GetFormat()->SetAuthor(L"E-iceblue");
 
 	//Load a picture
-	DocPicture* docPicture = new DocPicture(doc);
-	docPicture->LoadImageSpire(imagePath.c_str());
+	intrusive_ptr<DocPicture> docPicture = new DocPicture(doc);
+	docPicture->LoadImageSpire(DATAPATH"/E-iceblue.png");
 
 	//Insert the picture into the comment GetBody()
 	comment->GetBody()->AddParagraph()->GetChildObjects()->Add(docPicture);
@@ -27,5 +26,4 @@ int main() {
 	//Save and launch
 	doc->SaveToFile(outputFile.c_str(), FileFormat::Docx);
 	doc->Close();
-	delete doc;
 }

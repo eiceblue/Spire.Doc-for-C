@@ -1,14 +1,14 @@
 #include "pch.h"
+
 using namespace Spire::Doc;
 
-int main() {
-	wstring input_path = DATAPATH;
-	wstring inputFile = input_path + L"Template_Docx_2.docx";
-	wstring output_path = OUTPUTPATH;
-	wstring outputFile = output_path + L"SpecifiedProtectionType.docx";
+int main()
+{
+	std::wstring outputFile = OUTPUTPATH"/SpecifiedProtectionType.docx";
+	std::wstring inputFile = DATAPATH"/Template_Docx_2.docx";
 
 	//Create Word document.
-	Document* document = new Document();
+	intrusive_ptr<Document> document = new Document();
 
 	//Load the file from disk.
 	document->LoadFromFile(inputFile.c_str());
@@ -19,5 +19,4 @@ int main() {
 	//Save to file.
 	document->SaveToFile(outputFile.c_str(), FileFormat::Docx2013);
 	document->Close();
-	delete document;
 }

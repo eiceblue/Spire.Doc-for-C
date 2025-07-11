@@ -9,24 +9,22 @@ int main() {
 	wstring outputFile = output_path + L"Merge.docx";
 
 	//Create word document
-	Document* document = new Document();
+	intrusive_ptr<Document> document = new Document();
 	document->LoadFromFile(inputFile_1.c_str(), FileFormat::Doc);
 
-	Document* documentMerge = new Document();
+	intrusive_ptr<Document> documentMerge = new Document();
 	documentMerge->LoadFromFile(inputFile_2.c_str(), FileFormat::Docx);
 
 
 	int sectionCount = documentMerge->GetSections()->GetCount();
 	for (int i = 0; i < sectionCount; i++)
 	{
-		Section* section = documentMerge->GetSections()->GetItem(i);
-		document->GetSections()->Add(section->Clone());
+		intrusive_ptr<Section> section = documentMerge->GetSections()->GetItemInSectionCollection(i);
+		document->GetSections()->Add(section->CloneSection());
 	}
 
 	//Save as docx file.
 	document->SaveToFile(outputFile.c_str(), FileFormat::Docx);
 	document->Close();
 	documentMerge->Close();
-	delete document;
-	delete documentMerge;
 }

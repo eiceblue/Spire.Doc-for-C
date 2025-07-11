@@ -9,19 +9,18 @@ int main() {
 	wstring outputFile = output_path + L"AddSectionFromOtherDoc.docx";
 
 	//Open a Word document as target document
-	Document* TarDoc = new Document(inputFile_1.c_str());
+	intrusive_ptr<Document> TarDoc = new Document(inputFile_1.c_str());
 	//Open a Word document as source document
-	Document* SouDoc = new Document(inputFile_2.c_str());
+	intrusive_ptr<Document> SouDoc = new Document(inputFile_2.c_str());
 	//Get the second section from source document
-	Section* Ssection = SouDoc->GetSections()->GetItem(1);
+	intrusive_ptr<Section> Ssection = SouDoc->GetSections()->GetItemInSectionCollection(1);
 
 	//Add the section in target document
-	TarDoc->GetSections()->Add(Ssection->Clone());
+	TarDoc->GetSections()->Add(Ssection->CloneSection());
 
 	//Save to file
 	TarDoc->SaveToFile(outputFile.c_str(), FileFormat::Docx);
 	SouDoc->Close();
 	TarDoc->Close();
-	delete TarDoc;
-	delete SouDoc;
+
 }

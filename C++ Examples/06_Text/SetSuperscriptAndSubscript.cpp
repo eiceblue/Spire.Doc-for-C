@@ -1,26 +1,29 @@
 #include "pch.h"
+
+
 using namespace Spire::Doc;
 
-int main() {
+
+int main()
+{
 	wstring output_path = OUTPUTPATH;
 	wstring outputFile = output_path + L"SetSuperscriptAndSubscript.docx";
-
 	//Create word document
-	Document* document = new Document();
+	intrusive_ptr<Document> document =  new Document();
 
 	//Create a new section
-	Section* section = document->AddSection();
+	intrusive_ptr<Section> section = document->AddSection();
 
-	Paragraph* paragraph = section->AddParagraph();
+	intrusive_ptr<Paragraph> paragraph = section->AddParagraph();
 	paragraph->AppendText(L"E = mc");
-	TextRange* range1 = paragraph->AppendText(L"2");
+	intrusive_ptr<TextRange> range1 = paragraph->AppendText(L"2");
 
 	//Set supperscript
 	range1->GetCharacterFormat()->SetSubSuperScript(SubSuperScript::SuperScript);
 
 	paragraph->AppendBreak(BreakType::LineBreak);
 	paragraph->AppendText(L"F");
-	TextRange* range2 = paragraph->AppendText(L"n");
+	intrusive_ptr<TextRange> range2 = paragraph->AppendText(L"n");
 
 	//Set subscript
 	range2->GetCharacterFormat()->SetSubSuperScript(SubSuperScript::SubScript);
@@ -33,10 +36,10 @@ int main() {
 	//Set font size
 	for (int i = 0; i < paragraph->GetChildObjects()->GetCount(); i++)
 	{
-		DocumentObject* item = paragraph->GetChildObjects()->GetItem(i);
-		if (dynamic_cast<TextRange*>(item) != nullptr)
+		intrusive_ptr<DocumentObject> item = paragraph->GetChildObjects()->GetItem(i);
+		if (Object::CheckType<TextRange>(item))
 		{
-			TextRange* tr = dynamic_cast<TextRange*>(item);
+			intrusive_ptr<TextRange> tr = boost::dynamic_pointer_cast<TextRange>(item);
 			tr->GetCharacterFormat()->SetFontSize(36);
 		}
 	}
@@ -44,5 +47,4 @@ int main() {
 	//Save and launch the document
 	document->SaveToFile(outputFile.c_str(), FileFormat::Docx2013);
 	document->Close();
-	delete document;
 }

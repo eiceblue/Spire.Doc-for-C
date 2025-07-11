@@ -9,11 +9,11 @@ int main() {
 	wstring outputFile = output_path + L"KeepSameFormat.docx";
 
 	//Load the source document from disk
-	Document* srcDoc = new Document();
+	intrusive_ptr<Document> srcDoc = new Document();
 	srcDoc->LoadFromFile(inputFile_1.c_str());
 
 	//Load the destination document from disk
-	Document* destDoc = new Document();
+	intrusive_ptr<Document> destDoc = new Document();
 	destDoc->LoadFromFile(inputFile_2.c_str());
 
 	//Keep same format of source document
@@ -23,14 +23,12 @@ int main() {
 	int sectionCount = srcDoc->GetSections()->GetCount();
 	for (int i = 0; i < sectionCount; i++)
 	{
-		Section* section = srcDoc->GetSections()->GetItem(i);
-		destDoc->GetSections()->Add(section->Clone());
+		intrusive_ptr<Section> section = srcDoc->GetSections()->GetItemInSectionCollection(i);
+		destDoc->GetSections()->Add(section->CloneSection());
 	}
 
 	//Save the Word document
 	destDoc->SaveToFile(outputFile.c_str(), FileFormat::Docx2013);
 	srcDoc->Close();
 	destDoc->Close();
-	delete srcDoc;
-	delete destDoc;
 }

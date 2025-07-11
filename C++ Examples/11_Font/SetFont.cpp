@@ -1,24 +1,25 @@
 #include "pch.h"
 using namespace Spire::Doc;
 
+
 int main() {
 	wstring input_path = DATAPATH;
-	wstring inputFile = input_path  + L"Sample.docx";
+	wstring inputFile = input_path + L"Sample.docx";
 	wstring output_path = OUTPUTPATH;
 	wstring outputFile = output_path + L"SetFont.docx";
-	
+
 	//Load the document
-	Document* doc = new Document();
+	intrusive_ptr<Document> doc = new Document();
 	doc->LoadFromFile(inputFile.c_str());
 
 	//Get the first section 
-	Section* s = doc->GetSections()->GetItem(0);
+	intrusive_ptr<Section> s = doc->GetSections()->GetItemInSectionCollection(0);
 
 	//Get the second paragraph
-	Paragraph* p = s->GetParagraphs()->GetItem(1);
+	intrusive_ptr<Paragraph> p = s->GetParagraphs()->GetItemInParagraphCollection(1);
 
 	//Create a characterFormat object
-	CharacterFormat* format = new CharacterFormat(doc);
+	intrusive_ptr<CharacterFormat> format = new CharacterFormat(doc);
 	//Set font
 	format->SetFontName(L"Arial");
 	format->SetFontSize(16);
@@ -27,11 +28,11 @@ int main() {
 	int pChildObjectsCount = p->GetChildObjects()->GetCount();
 	for (int i = 0; i < pChildObjectsCount; i++)
 	{
-		DocumentObject* childObj = p->GetChildObjects()->GetItem(i);
-		if (dynamic_cast<TextRange*>(childObj) != nullptr)
+		intrusive_ptr<DocumentObject> childObj = p->GetChildObjects()->GetItem(i);
+		if (Object::CheckType<TextRange>(childObj))
 		{
 			//Apply character format
-			TextRange* tr = dynamic_cast<TextRange*>(childObj);
+			intrusive_ptr<TextRange> tr = boost::dynamic_pointer_cast<TextRange>(childObj);
 			tr->ApplyCharacterFormat(format);
 		}
 	}
@@ -39,5 +40,5 @@ int main() {
 	//Save and launch document
 	doc->SaveToFile(outputFile.c_str(), FileFormat::Docx);
 	doc->Close();
-	delete doc;
-}	
+}
+

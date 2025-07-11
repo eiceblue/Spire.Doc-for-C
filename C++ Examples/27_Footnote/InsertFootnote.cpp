@@ -1,6 +1,5 @@
 #include "pch.h"
 using namespace Spire::Doc;
-using namespace Spire::Common;
 
 int main() {
 	wstring input_path = DATAPATH;
@@ -8,16 +7,15 @@ int main() {
 	wstring output_path = OUTPUTPATH;
 	wstring outputFile = output_path + L"InsertFootnote.docx";
 
-	Document* document = new Document();
+	intrusive_ptr<Document> document = new Document();
 	document->LoadFromFile(inputFile.c_str());
 
-	//finds the first matched string.
-	TextSelection* selection = document->FindString(L"Spire.Doc", false, true);
+	intrusive_ptr<TextSelection> selection = document->FindString(L"Spire.Doc", false, true);
 
-	TextRange* textRange = selection->GetAsOneRange();
-	Paragraph* paragraph = textRange->GetOwnerParagraph();
+	intrusive_ptr<TextRange> textRange = selection->GetAsOneRange();
+	intrusive_ptr<Paragraph> paragraph = textRange->GetOwnerParagraph();
 	int index = paragraph->GetChildObjects()->IndexOf(textRange);
-	Footnote* footnote = paragraph->AppendFootnote(FootnoteType::Footnote);
+	intrusive_ptr<Footnote> footnote = paragraph->AppendFootnote(FootnoteType::Footnote);
 	paragraph->GetChildObjects()->Insert(index + 1, footnote);
 
 	textRange = footnote->GetTextBody()->AddParagraph()->AppendText(L"Welcome to evaluate Spire.Doc");
@@ -32,5 +30,4 @@ int main() {
 
 	document->SaveToFile(outputFile.c_str(), FileFormat::Docx2010);
 	document->Close();
-	delete document;
 }

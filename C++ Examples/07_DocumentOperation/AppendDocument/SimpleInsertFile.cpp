@@ -9,7 +9,7 @@ int main() {
 	wstring outputFile = output_path + L"SimpleInsertFile.docx";
 
 	//Load the Word document
-	Document* doc = new Document();
+	intrusive_ptr<Document> doc = new Document();
 	doc->LoadFromFile(inputFile_1.c_str());
 
 	//Insert document from file
@@ -18,5 +18,4 @@ int main() {
 	//Save the document
 	doc->SaveToFile(outputFile.c_str(), FileFormat::Docx2013);
 	doc->Close();
-	delete doc;
 }

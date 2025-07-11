@@ -1,21 +1,24 @@
 #include "pch.h"
+
+
 using namespace Spire::Doc;
 
-int main() {
+int main()
+{
 	wstring output_path = OUTPUTPATH;
 	wstring outputFile = output_path + L"AddTabStopsToParagraph.docx";
 
 	//Create Word document.
-	Document* document = new Document();
+	intrusive_ptr<Document> document = new Document();
 
 	//Add a section.
-	Section* section = document->AddSection();
+	intrusive_ptr<Section> section = document->AddSection();
 
 	//Add paragraph 1.
-	Paragraph* paragraph1 = section->AddParagraph();
+	intrusive_ptr<Paragraph> paragraph1 = section->AddParagraph();
 
 	//Add tab and set its position (in points).
-	Tab* tab = paragraph1->GetFormat()->GetTabs()->AddTab(28);
+	intrusive_ptr<Tab> tab = paragraph1->GetFormat()->GetTabs()->AddTab(28);
 
 	//Set tab alignment.
 	tab->SetJustification(TabJustification::Left);
@@ -36,7 +39,7 @@ int main() {
 	paragraph1->AppendText(L"\t$650");
 
 	//Add paragraph 2.
-	Paragraph* paragraph2 = section->AddParagraph();
+	intrusive_ptr<Paragraph> paragraph2 = section->AddParagraph();
 
 	//Add tab and set its position (in points).
 	tab = paragraph2->GetFormat()->GetTabs()->AddTab(28);
@@ -62,5 +65,5 @@ int main() {
 	//Save the Word document
 	document->SaveToFile(outputFile.c_str(), FileFormat::Docx2013);
 	document->Close();
-	delete document;
+
 }

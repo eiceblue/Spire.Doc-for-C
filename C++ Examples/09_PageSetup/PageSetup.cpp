@@ -1,16 +1,18 @@
 #include "pch.h"
 using namespace Spire::Doc;
-using namespace Spire::Common;
 
+
+void addTable(intrusive_ptr<Section> section);
+void InsertHeaderAndFooter(intrusive_ptr<Section> section);
 int main() {
 	wstring output_path = OUTPUTPATH;
 	wstring outputFile = output_path + L"PageSetup.doc";
 
 	//Create Word document.
-	Document* document = new Document();
-	Section* section = document->AddSection();
+	intrusive_ptr<Document> document = new Document();
+	intrusive_ptr<Section> section = document->AddSection();
 
-	//The unit of all measures below is point, 1point = 0.3528 mm.
+	// The unit of all measures below is point, 1point = 0.3528 mm.
 	section->GetPageSetup()->SetPageSize(PageSize::A4());
 	section->GetPageSetup()->GetMargins()->SetTop(72.0f);
 	section->GetPageSetup()->GetMargins()->SetBottom(72.0f);
@@ -25,13 +27,12 @@ int main() {
 	//Save doc file.
 	document->SaveToFile(outputFile.c_str(), FileFormat::Doc);
 	document->Close();
-	delete document;
 }
 
-void addTable(Section* section)
+void addTable(intrusive_ptr<Section> section)
 {
-	vector<wstring> header = { L"Name", L"Capital", L"Continent", L"Area", L"Population" };
-	vector<vector<wstring>> data = {
+	std::vector<std::wstring> header = { L"Name", L"Capital", L"Continent", L"Area", L"Population" };
+	std::vector<std::vector<std::wstring>> data = {
 		{L"Argentina", L"Buenos Aires", L"South America", L"2777815", L"32300003"},
 		{L"Bolivia", L"La Paz", L"South", L"1098575", L"7300000"},
 		{L"Brazil", L"Brasilia", L"South", L"8511196", L"150400000"},
@@ -51,52 +52,63 @@ void addTable(Section* section)
 		{L"Uruguay", L"Montevideo", L"South", L"176140", L"3002000"},
 		{L"Venezuela", L"Caracas", L"South", L"912047", L"19700000"}
 	};
-	Table* table = section->AddTable(true);
+	intrusive_ptr<Table> table = section->AddTable(true);
 
 	table->ResetCells(data.size() + 1, header.size());
 
 	// ***************** First Row *************************
-	TableRow* row = table->GetRows()->GetItem(0);
+	intrusive_ptr<TableRow> row = table->GetRows()->GetItemInRowCollection(0);
 	row->SetIsHeader(true);
 	row->SetHeight(20);
 	row->SetHeightType(TableRowHeightType::Exactly);
-	row->GetRowFormat()->SetBackColor(Color::GetGray());
-	for (int i = 0; i < header.size(); i++)
+
+	for (int i = 0; i < row->GetCells()->GetCount(); i++)
 	{
-		row->GetCells()->GetItem(i)->GetCellFormat()->SetVerticalAlignment(VerticalAlignment::Middle);
-		Paragraph* p = row->GetCells()->GetItem(i)->AddParagraph();
+		row->GetCells()->GetItemInCellCollection(i)->GetCellFormat()->GetShading()->SetBackgroundPatternColor(Color::GetGray());
+	}
+
+	for (size_t i = 0; i < header.size(); i++)
+	{
+		row->GetCells()->GetItemInCellCollection(i)->GetCellFormat()->SetVerticalAlignment(VerticalAlignment::Middle);
+		intrusive_ptr<Paragraph> p = row->GetCells()->GetItemInCellCollection(i)->AddParagraph();
 		p->GetFormat()->SetHorizontalAlignment(HorizontalAlignment::Center);
-		TextRange* txtRange = p->AppendText(header[i].c_str());
+		intrusive_ptr<TextRange> txtRange = p->AppendText(header[i].c_str());
 		txtRange->GetCharacterFormat()->SetBold(true);
 	}
 
-	for (int r = 0; r < data.size(); r++)
+	for (size_t r = 0; r < data.size(); r++)
 	{
-		TableRow* dataRow = table->GetRows()->GetItem(r + 1);
+		intrusive_ptr<TableRow> dataRow = table->GetRows()->GetItemInRowCollection(r + 1);
 		dataRow->SetHeight(20);
 		dataRow->SetHeightType(TableRowHeightType::Exactly);
-		dataRow->GetRowFormat()->SetBackColor(Color::Empty());
-		for (int c = 0; c < data[r].size(); c++)
+
+		for (int i = 0; i < dataRow->GetCells()->GetCount(); i++)
 		{
-			dataRow->GetCells()->GetItem(c)->GetCellFormat()->SetVerticalAlignment(VerticalAlignment::Middle);
-			dataRow->GetCells()->GetItem(c)->AddParagraph()->AppendText(data[r][c].c_str());
+			dataRow->GetCells()->GetItemInCellCollection(i)->GetCellFormat()->GetShading()->SetBackgroundPatternColor(Color::Empty());
+		}
+
+		for (size_t c = 0; c < data[r].size(); c++)
+		{
+			dataRow->GetCells()->GetItemInCellCollection(c)->GetCellFormat()->SetVerticalAlignment(VerticalAlignment::Middle);
+			dataRow->GetCells()->GetItemInCellCollection(c)->AddParagraph()->AppendText(data[r][c].c_str());
 		}
 	}
 }
 
-void InsertHeaderAndFooter(Section* section)
+void InsertHeaderAndFooter(intrusive_ptr<Section> section)
 {
+
 	wstring input_path = DATAPATH;
-	HeaderFooter* header = section->GetHeadersFooters()->GetHeader();
-	HeaderFooter* footer = section->GetHeadersFooters()->GetFooter();
+	intrusive_ptr<HeaderFooter> header = section->GetHeadersFooters()->GetHeader();
+	intrusive_ptr<HeaderFooter> footer = section->GetHeadersFooters()->GetFooter();
 
 	//Insert picture and text to header.
-	Paragraph* headerParagraph = header->AddParagraph();
+	intrusive_ptr<Paragraph> headerParagraph = header->AddParagraph();
 	wstring imagePath1 = input_path + L"Header.png";
-	DocPicture* headerPicture = headerParagraph->AppendPicture(imagePath1.c_str());
+	intrusive_ptr<DocPicture> headerPicture = headerParagraph->AppendPicture(imagePath1.c_str());
 
 	//Header text.
-	TextRange* text = headerParagraph->AppendText(L"Demo of Spire.Doc");
+	intrusive_ptr<TextRange> text = headerParagraph->AppendText(L"Demo of Spire.Doc");
 	text->GetCharacterFormat()->SetFontName(L"Arial");
 	text->GetCharacterFormat()->SetFontSize(10);
 	text->GetCharacterFormat()->SetItalic(true);
@@ -117,9 +129,9 @@ void InsertHeaderAndFooter(Section* section)
 	headerPicture->SetVerticalAlignment(ShapeVerticalAlignment::Top);
 
 	//Insert picture to footer.
-	Paragraph* footerParagraph = footer->AddParagraph();
+	intrusive_ptr<Paragraph> footerParagraph = footer->AddParagraph();
 	wstring imagePath2 = input_path + L"Footer.png";
-	DocPicture* footerPicture = footerParagraph->AppendPicture(imagePath2.c_str());
+	intrusive_ptr<DocPicture> footerPicture = footerParagraph->AppendPicture(imagePath2.c_str());
 
 	//Footer picture layout.
 	footerPicture->SetTextWrappingStyle(TextWrappingStyle::Behind);
@@ -137,4 +149,5 @@ void InsertHeaderAndFooter(Section* section)
 	//Border.
 	footerParagraph->GetFormat()->GetBorders()->GetTop()->SetBorderType(BorderStyle::Single);
 	footerParagraph->GetFormat()->GetBorders()->GetTop()->SetSpace(0.05F);
+
 }

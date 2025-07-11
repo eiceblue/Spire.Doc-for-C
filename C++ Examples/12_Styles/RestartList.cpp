@@ -4,20 +4,19 @@ using namespace Spire::Doc;
 int main() {
 	wstring output_path = OUTPUTPATH;
 	wstring outputFile = output_path + L"RestartList.docx";
-	
 	//Create word document
-	Document* document = new Document();
+	intrusive_ptr<Document> document = new Document();
 
 	//Create a new section
-	Section* section = document->AddSection();
+	intrusive_ptr<Section> section = document->AddSection();
 
 	//Create a new paragraph
-	Paragraph* paragraph = section->AddParagraph();
+	intrusive_ptr<Paragraph> paragraph = section->AddParagraph();
 
 	//Append Text
 	paragraph->AppendText(L"List 1");
 
-	ListStyle* numberList = new ListStyle(document, ListType::Numbered);
+	intrusive_ptr<ListStyle> numberList = new ListStyle(document, ListType::Numbered);
 	numberList->SetName(L"Numbered1");
 	document->GetListStyles()->Add(numberList);
 
@@ -42,7 +41,7 @@ int main() {
 	paragraph = section->AddParagraph();
 	paragraph->AppendText(L"List 2");
 
-	ListStyle* numberList2 = new ListStyle(document, ListType::Numbered);
+	intrusive_ptr<ListStyle> numberList2 = new ListStyle(document, ListType::Numbered);
 	numberList2->SetName(L"Numbered2");
 	//set start number of second list
 	numberList2->GetLevels()->GetItem(0)->SetStartAt(10);
@@ -68,5 +67,4 @@ int main() {
 	//Save to docx file.
 	document->SaveToFile(outputFile.c_str(), FileFormat::Docx);
 	document->Close();
-	delete document;
 }

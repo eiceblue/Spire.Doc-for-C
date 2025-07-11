@@ -8,17 +8,16 @@ int main() {
 	wstring outputFile = output_path + L"RemoveTextBox.docx";
 
 	//Load the document
-	Document* doc = new Document();
+	intrusive_ptr<Document> doc = new Document();
 	doc->LoadFromFile(inputFile.c_str());
 
 	//Remove the first text box
 	doc->GetTextBoxes()->RemoveAt(0);
 
 	//Clear all the text boxes
-	//Doc.TextBoxes.Clear();
+	//doc->GetTextBoxes()->Clear();
 
 	//Save and launch document
 	doc->SaveToFile(outputFile.c_str(), FileFormat::Docx);
 	doc->Close();
-	delete doc;
 }

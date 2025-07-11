@@ -1,53 +1,12 @@
 #include "pch.h"
+#include <fstream>
+#include <locale>
+#include <codecvt>
+
+
 using namespace Spire::Doc;
-using namespace Spire::Common;
 
-int main() {
-	wstring input_path = DATAPATH;
-	wstring inputFile = input_path + L"GetDiagonalBorderOfCell.docx";
-	wstring output_path = OUTPUTPATH;
-	wstring outputFile = output_path + L"GetDiagonalBorder.txt";
-
-	//Load Word from disk
-	Document* doc = new Document();
-	doc->LoadFromFile(inputFile.c_str());
-
-	//Get the first section
-	Section* section = doc->GetSections()->GetItem(0);
-
-	//Get the first table in the section
-	Table* table = dynamic_cast<Table*>(section->GetTables()->GetItemInTableCollection(0));
-
-	wstring* stringBuilder = new wstring();
-
-	//Get the setting of the diagonal border of table cell
-	BorderStyle bs_UP = table->GetRows()->GetItem(0)->GetCells()->GetItem(0)->GetCellFormat()->GetBorders()->GetDiagonalUp()->GetBorderType();
-	stringBuilder->append(L"DiagonalUp border type of table cell(0,0) is " + GetBorderStyle(bs_UP)).append(L"\n");
-
-	Color* color_UP = table->GetRows()->GetItem(0)->GetCells()->GetItem(0)->GetCellFormat()->GetBorders()->GetDiagonalUp()->GetColor();
-	stringBuilder->append(L"DiagonalUp border color of table cell(0,0) is " + (wstring)color_UP->ToString()).append(L"\n");
-
-	float width_UP = table->GetRows()->GetItem(0)->GetCells()->GetItem(0)->GetCellFormat()->GetBorders()->GetDiagonalUp()->GetLineWidth();
-	stringBuilder->append(L"Line width of DiagonalUp border of table cell(0,0) is " + to_wstring(width_UP)).append(L"\n");
-
-	BorderStyle bs_Down = table->GetRows()->GetItem(0)->GetCells()->GetItem(0)->GetCellFormat()->GetBorders()->GetDiagonalDown()->GetBorderType();
-	stringBuilder->append(L"DiagonalDown border type of table cell(0,0) is " + GetBorderStyle(bs_Down)).append(L"\n");
-
-	Color* color_Down = table->GetRows()->GetItem(0)->GetCells()->GetItem(0)->GetCellFormat()->GetBorders()->GetDiagonalDown()->GetColor();
-	stringBuilder->append(L"DiagonalDown border color of table cell(0,0) is " + (wstring)color_Down->ToString()).append(L"\n");
-
-	float width_Down = table->GetRows()->GetItem(0)->GetCells()->GetItem(0)->GetCellFormat()->GetBorders()->GetDiagonalDown()->GetLineWidth();
-	stringBuilder->append(L"DiagonalDown border color of table cell(0,0) is " + to_wstring(width_Down)).append(L"\n");
-
-	//Save to txt file
-	wofstream write(outputFile);
-	write << stringBuilder->c_str();
-	write.close();
-	doc->Close();
-	delete doc;
-	delete stringBuilder;
-}
-wstring GetBorderStyle(BorderStyle value)
+std::wstring GetBorderStyle(BorderStyle value)
 {
 	switch (value)
 	{
@@ -87,6 +46,7 @@ wstring GetBorderStyle(BorderStyle value)
 	case Spire::Doc::BorderStyle::ThickThinSmallGap:
 		return L"ThickThinSmallGap";
 		break;
+
 	case Spire::Doc::BorderStyle::ThinThickThinSmallGap:
 		return L"ThinThickThinSmallGap";
 		break;
@@ -99,6 +59,7 @@ wstring GetBorderStyle(BorderStyle value)
 	case Spire::Doc::BorderStyle::ThinThickThinMediumGap:
 		return L"ThinThickThinMediumGap";
 		break;
+
 	case Spire::Doc::BorderStyle::ThinThickLargeGap:
 		return L"ThinThickLargeGap";
 		break;
@@ -139,4 +100,51 @@ wstring GetBorderStyle(BorderStyle value)
 		return L"Cleared";
 		break;
 	}
+	return L"";
+}
+
+int main()
+{
+	std::wstring outputFile = OUTPUTPATH"/GetDiagonalBorder.txt";
+	std::wstring inputFile = DATAPATH"/GetDiagonalBorderOfCell.docx";
+	
+	//Load Word from disk
+	intrusive_ptr<Document> doc = new Document();
+	doc->LoadFromFile(inputFile.c_str());
+
+	//Get the first section
+	intrusive_ptr<Section> section = doc->GetSections()->GetItemInSectionCollection(0);
+
+	//Get the first table in the section
+	intrusive_ptr<Table> table = Object::Dynamic_cast<Table>(section->GetTables()->GetItemInTableCollection(0));
+
+	std::wstring stringBuilder;
+
+	//Get the setting of the diagonal border of table cell
+	BorderStyle bs_UP = table->GetRows()->GetItemInRowCollection(0)->GetCells()->GetItemInCellCollection(0)->GetCellFormat()->GetBorders()->GetDiagonalUp()->GetBorderType();
+	stringBuilder.append(L"DiagonalUp border type of table cell(0,0) is " + GetBorderStyle(bs_UP)).append(L"\n");
+
+	intrusive_ptr<Color> color_UP = table->GetRows()->GetItemInRowCollection(0)->GetCells()->GetItemInCellCollection(0)->GetCellFormat()->GetBorders()->GetDiagonalUp()->GetColor();
+	stringBuilder.append(L"DiagonalUp border color of table cell(0,0) is " + (std::wstring)color_UP->ToString()).append(L"\n");
+
+	float width_UP = table->GetRows()->GetItemInRowCollection(0)->GetCells()->GetItemInCellCollection(0)->GetCellFormat()->GetBorders()->GetDiagonalUp()->GetLineWidth();
+	stringBuilder.append(L"Line width of DiagonalUp border of table cell(0,0) is " + std::to_wstring(width_UP)).append(L"\n");
+
+	BorderStyle bs_Down = table->GetRows()->GetItemInRowCollection(0)->GetCells()->GetItemInCellCollection(0)->GetCellFormat()->GetBorders()->GetDiagonalDown()->GetBorderType();
+	stringBuilder.append(L"DiagonalDown border type of table cell(0,0) is " + GetBorderStyle(bs_Down)).append(L"\n");
+
+	intrusive_ptr<Color> color_Down = table->GetRows()->GetItemInRowCollection(0)->GetCells()->GetItemInCellCollection(0)->GetCellFormat()->GetBorders()->GetDiagonalDown()->GetColor();
+	stringBuilder.append(L"DiagonalDown border color of table cell(0,0) is " + (std::wstring)color_Down->ToString()).append(L"\n");
+
+	float width_Down = table->GetRows()->GetItemInRowCollection(0)->GetCells()->GetItemInCellCollection(0)->GetCellFormat()->GetBorders()->GetDiagonalDown()->GetLineWidth();
+	stringBuilder.append(L"DiagonalDown border color of table cell(0,0) is " + std::to_wstring(width_Down)).append(L"\n");
+
+	//Save to txt file
+	std::wofstream write(outputFile);
+	auto LocUtf8 = locale(locale(""), new std::codecvt_utf8<wchar_t>);
+	write.imbue(LocUtf8);
+	write << stringBuilder;
+	write.close();
+
+	doc->Close();
 }

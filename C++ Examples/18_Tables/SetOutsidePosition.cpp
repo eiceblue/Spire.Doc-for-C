@@ -1,37 +1,38 @@
 #include "pch.h"
+
 using namespace Spire::Doc;
 
-int main() {
-	wstring input_path = DATAPATH;
-	wstring inputFile = input_path + L"Word.png";
-	wstring output_path = OUTPUTPATH;
-	wstring outputFile = output_path + L"SetOutsidePosition.docx";
+int main()
+{
+	std::wstring outputFile = OUTPUTPATH"/SetOutsidePosition.docx";
+	std::wstring inputFile = DATAPATH"/Word.png";
 
 	//Create a new word document and add new section
-	Document* doc = new Document();
-	Section* sec = doc->AddSection();
+	intrusive_ptr<Document> doc = new Document();
+	intrusive_ptr<Section> sec = doc->AddSection();
 
 	//Get header
-	HeaderFooter* header = doc->GetSections()->GetItem(0)->GetHeadersFooters()->GetHeader();
+	intrusive_ptr<HeaderFooter> header = doc->GetSections()->GetItemInSectionCollection(0)->GetHeadersFooters()->GetHeader();
 
 	//Add new paragraph on header and set HorizontalAlignment of the paragraph as left
-	Paragraph* paragraph = header->AddParagraph();
+	intrusive_ptr<Paragraph> paragraph = header->AddParagraph();
 	paragraph->GetFormat()->SetHorizontalAlignment(HorizontalAlignment::Left);
 
 	//Load an image for the paragraph
-	DocPicture* headerimage = paragraph->AppendPicture(Image::FromFile(inputFile.c_str()));
+	intrusive_ptr<DocPicture> headerimage = paragraph->AppendPicture(inputFile.c_str());
+
 	//Add a table of 4 rows and 2 columns
-	Table* table = header->AddTable();
+	intrusive_ptr<Table> table = header->AddTable();
 	table->ResetCells(4, 2);
 
 	//Set the position of the table to the right of the image
-	table->GetTableFormat()->SetWrapTextAround(true);
-	table->GetTableFormat()->GetPositioning()->SetHorizPositionAbs(HorizontalPosition::Outside);
-	table->GetTableFormat()->GetPositioning()->SetVertRelationTo(VerticalRelation::Margin);
-	table->GetTableFormat()->GetPositioning()->SetVertPosition(43);
+	table->GetFormat()->SetWrapTextAround(true);
+	table->GetFormat()->GetPositioning()->SetHorizPositionAbs(HorizontalPosition::Outside);
+	table->GetFormat()->GetPositioning()->SetVertRelationTo(VerticalRelation::Margin);
+	table->GetFormat()->GetPositioning()->SetVertPosition(43);
 
 	//Add contents for the table
-	vector<vector<wstring>> data =
+	std::vector<std::vector<std::wstring>> data =
 	{
 		{L"Spire.Doc.left", L"Spire XLS.right"},
 		{L"Spire.Presentatio.left", L"Spire.PDF.right"},
@@ -41,22 +42,22 @@ int main() {
 
 	for (int r = 0; r < 4; r++)
 	{
-		TableRow* dataRow = table->GetRows()->GetItem(r);
+		intrusive_ptr<TableRow> dataRow = table->GetRows()->GetItemInRowCollection(r);
 		for (int c = 0; c < 2; c++)
 		{
 			if (c == 0)
 			{
-				Paragraph* par = dataRow->GetCells()->GetItem(c)->AddParagraph();
+				intrusive_ptr<Paragraph> par = dataRow->GetCells()->GetItemInCellCollection(c)->AddParagraph();
 				par->AppendText(data[r][c].c_str());
 				par->GetFormat()->SetHorizontalAlignment(HorizontalAlignment::Left);
-				dataRow->GetCells()->GetItem(c)->SetWidth(180);
+				dataRow->GetCells()->GetItemInCellCollection(c)->SetCellWidth(180, CellWidthType::Point);
 			}
 			else
 			{
-				Paragraph* par = dataRow->GetCells()->GetItem(c)->AddParagraph();
+				intrusive_ptr<Paragraph> par = dataRow->GetCells()->GetItemInCellCollection(c)->AddParagraph();
 				par->AppendText(data[r][c].c_str());
 				par->GetFormat()->SetHorizontalAlignment(HorizontalAlignment::Right);
-				dataRow->GetCells()->GetItem(c)->SetWidth(180);
+				dataRow->GetCells()->GetItemInCellCollection(c)->SetCellWidth(180, CellWidthType::Point);
 			}
 		}
 	}
@@ -64,5 +65,5 @@ int main() {
 	//Save and launch document
 	doc->SaveToFile(outputFile.c_str(), FileFormat::Docx);
 	doc->Close();
-	delete doc;
+
 }

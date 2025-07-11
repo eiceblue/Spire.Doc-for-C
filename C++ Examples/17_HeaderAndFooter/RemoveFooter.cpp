@@ -1,28 +1,27 @@
 #include "pch.h"
 using namespace Spire::Doc;
 
-int main() {
-	wstring input_path = DATAPATH;
-	wstring inputFile = input_path + L"HeaderAndFooter.docx";
-	wstring output_path = OUTPUTPATH;
-	wstring outputFile = output_path + L"RemoveFooter.docx";
+int main()
+{
+	std::wstring outputFile = OUTPUTPATH"/RemoveFooter.docx";
+	std::wstring inputFile = DATAPATH"/HeaderAndFooter.docx";
 
 	//Load the document
-	Document* doc = new Document();
+	intrusive_ptr<Document> doc = new Document();
 	doc->LoadFromFile(inputFile.c_str());
 
 	//Get the first section
-	Section* section = doc->GetSections()->GetItem(0);
+	intrusive_ptr<Section> section = doc->GetSections()->GetItemInSectionCollection(0);
 
 	//Traverse the word document and clear all footers in different type
 	for (int i = 0; i < section->GetParagraphs()->GetCount(); i++)
 	{
-		Paragraph* para = section->GetParagraphs()->GetItem(i);
+		intrusive_ptr<Paragraph> para = section->GetParagraphs()->GetItemInParagraphCollection(i);
 		for (int j = 0; j < para->GetChildObjects()->GetCount(); j++)
 		{
-			DocumentObject* obj = para->GetChildObjects()->GetItem(j);
+			intrusive_ptr<DocumentObject> obj = para->GetChildObjects()->GetItem(j);
 			//Clear footer in the first page
-			HeaderFooter* footer;
+			intrusive_ptr<HeaderFooter> footer;
 			footer = section->GetHeadersFooters()->GetFirstPageFooter();
 			if (footer != nullptr)
 			{
@@ -47,5 +46,4 @@ int main() {
 	//Save and launch document
 	doc->SaveToFile(outputFile.c_str(), FileFormat::Docx);
 	doc->Close();
-	delete doc;
 }

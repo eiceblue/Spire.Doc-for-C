@@ -1,14 +1,17 @@
 #include "pch.h"
+
+
 using namespace Spire::Doc;
 
-int main() {
+int main()
+{
 	wstring input_path = DATAPATH;
-	wstring inputFile = input_path + L"Summary_of_Science.doc";
 	wstring output_path = OUTPUTPATH;
+	wstring inputFile = input_path + L"Summary_of_Science.doc";
 	wstring outputFile = output_path + L"DocumentProperty.docx";
 
 	//Open a blank Word document as template.
-	Document* document = new Document();
+	intrusive_ptr<Document> document =  new Document();
 	document->LoadFromFile(inputFile.c_str());
 
 	document->GetBuiltinDocumentProperties()->SetTitle(L"Document Demo Document");
@@ -23,5 +26,4 @@ int main() {
 	//Save as docx file.
 	document->SaveToFile(outputFile.c_str(), FileFormat::Docx);
 	document->Close();
-	delete document;
 }

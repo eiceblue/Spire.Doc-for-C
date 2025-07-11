@@ -1,29 +1,28 @@
 #include "pch.h"
 using namespace Spire::Doc;
-using namespace Spire::Common;
 
-int main() {
-	wstring output_path = OUTPUTPATH;
-	wstring outputFile = output_path + L"AddShapeGroup.docx";
+int main()
+{
+	std::wstring outputFile = OUTPUTPATH"/AddShapeGroup.docx";
 
 	//create a document
-	Document* doc = new Document();
-	Section* sec = doc->AddSection();
+	intrusive_ptr<Document> doc = new Document();
+	intrusive_ptr<Section> sec = doc->AddSection();
 
 	//add a new paragraph
-	Paragraph* para = sec->AddParagraph();
+	intrusive_ptr<Paragraph> para = sec->AddParagraph();
 	//add a shape group with the height and width
-	ShapeGroup* shapegroup = para->AppendShapeGroup(375, 462);
+	intrusive_ptr<ShapeGroup> shapegroup = para->AppendShapeGroup(375, 462);
 	shapegroup->SetHorizontalPosition(180);
 	//calcuate the scale ratio
 	float X = static_cast<float>(shapegroup->GetWidth() / 1000.0f);
 	float Y = static_cast<float>(shapegroup->GetHeight() / 1000.0f);
 
-	TextBox* txtBox = new TextBox(doc);
+	intrusive_ptr<TextBox> txtBox = new TextBox(doc);
 	txtBox->SetShapeType(ShapeType::RoundRectangle);
 	txtBox->SetWidth(125 / X);
 	txtBox->SetHeight(54 / Y);
-	Paragraph* paragraph = txtBox->GetBody()->AddParagraph();
+	intrusive_ptr<Paragraph> paragraph = txtBox->GetBody()->AddParagraph();
 	paragraph->GetFormat()->SetHorizontalAlignment(HorizontalAlignment::Center);
 	paragraph->AppendText(L"Start");
 	txtBox->SetHorizontalPosition(19 / X);
@@ -31,7 +30,7 @@ int main() {
 	txtBox->GetFormat()->SetLineColor(Color::GetGreen());
 	shapegroup->GetChildObjects()->Add(txtBox);
 
-	ShapeObject* arrowLineShape = new ShapeObject(doc, ShapeType::DownArrow);
+	intrusive_ptr<ShapeObject> arrowLineShape = new ShapeObject(doc, ShapeType::DownArrow);
 	arrowLineShape->SetWidth(16 / X);
 	arrowLineShape->SetHeight(40 / Y);
 	arrowLineShape->SetHorizontalPosition(69 / X);
@@ -94,5 +93,4 @@ int main() {
 	//save the document
 	doc->SaveToFile(outputFile.c_str(), FileFormat::Docx2010);
 	doc->Close();
-	delete doc;
 }

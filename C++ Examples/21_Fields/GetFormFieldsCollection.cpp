@@ -1,32 +1,33 @@
 #include "pch.h"
+#include <fstream>
+#include <locale>
+#include <codecvt>
+
 using namespace Spire::Doc;
 
-int main() {
-	wstring input_path = DATAPATH;
-	wstring inputFile = input_path + L"FillFormField.doc";
-	wstring output_path = OUTPUTPATH;
-	wstring outputFile = output_path + L"GetFormFieldsCollection.txt";
+int main()
+{
+	std::wstring outputFile = OUTPUTPATH"/GetFormFieldsCollection.txt";
+	std::wstring inputFile = DATAPATH"/FillFormField.doc";
 
-	wstring* sb = new wstring();
+	std::wstring stringBuilder;
 
 	//Open a Word document
-	Document* document = new Document();
+	intrusive_ptr<Document> document = new Document();
 	document->LoadFromFile(inputFile.c_str());
 
 	//Get the first section
-	Section* section = document->GetSections()->GetItem(0);
+	intrusive_ptr<Section> section = document->GetSections()->GetItemInSectionCollection(0);
 
-	FormFieldCollection* formFields = section->GetBody()->GetFormFields();
+	intrusive_ptr<FormFieldCollection> formFields = section->GetBody()->GetFormFields();
 
-	sb->append(L"The first section has " + to_wstring(formFields->GetCount()) + L" form fields.");
+	stringBuilder.append(L"The first section has " + std::to_wstring(formFields->GetCount()) + L" form fields.");
 
-	wofstream out;
-	out.open(outputFile);
-	out.flush();
-	out << sb->c_str();
-	out.close();
+	std::wofstream write(outputFile);
+	auto LocUtf8 = locale(locale(""), new std::codecvt_utf8<wchar_t>);
+	write.imbue(LocUtf8);
+	write << stringBuilder;
+	write.close();
 
 	document->Close();
-	delete document;
-	delete sb;
 }

@@ -1,27 +1,28 @@
 #include "pch.h"
-using namespace Spire::Doc;
-using namespace Spire::Common;
 
-int main() {
-	wstring output_path = OUTPUTPATH;
-	wstring outputFile = output_path + L"CreateTable.docx";
+using namespace Spire::Doc;
+
+void addTable(intrusive_ptr<Section> section);
+
+int main()
+{
+	std::wstring outputFile = OUTPUTPATH"/CreateTable.docx";
 
 	//Open a blank Word document as template
-	Document* document = new Document();
+	intrusive_ptr<Document> document = new Document();
 
-	Section* section = document->AddSection();
+	intrusive_ptr<Section> section = document->AddSection();
 	addTable(section);
 
 	//Save docx file
 	document->SaveToFile(outputFile.c_str(), FileFormat::Docx);
 	document->Close();
-	delete document;
 }
 
-void addTable(Section* section)
+void addTable(intrusive_ptr<Section> section)
 {
-	vector<wstring> header = { L"Name", L"Capital", L"Continent", L"Area", L"Population" };
-	vector<vector<wstring>> data =
+	std::vector<std::wstring> header = { L"Name", L"Capital", L"Continent", L"Area", L"Population" };
+	std::vector<std::vector<std::wstring>> data =
 	{
 		{L"Argentina", L"Buenos Aires", L"South America", L"2777815", L"32300003"},
 		{L"Bolivia", L"La Paz", L"South America", L"1098575", L"7300000"},
@@ -42,34 +43,45 @@ void addTable(Section* section)
 		{L"Uruguay", L"Montevideo", L"South America", L"176140", L"3002000"},
 		{L"Venezuela", L"Caracas", L"South America", L"912047", L"19700000"}
 	};
-	Table* table = section->AddTable(true);
+	intrusive_ptr<Table> table = section->AddTable(true);
 	table->ResetCells(data.size() + 1, header.size());
 
 	// ***************** First Row *************************
-	TableRow* row = table->GetRows()->GetItem(0);
+	intrusive_ptr<TableRow> row = table->GetRows()->GetItemInRowCollection(0);
 	row->SetIsHeader(true);
 	row->SetHeight(20); //unit: point, 1point = 0.3528 mm
 	row->SetHeightType(TableRowHeightType::Exactly);
-	row->GetRowFormat()->SetBackColor(Color::GetGray());
-	for (int i = 0; i < header.size(); i++)
+
+	for (int i = 0; i < row->GetCells()->GetCount(); i++)
 	{
-		row->GetCells()->GetItem(i)->GetCellFormat()->SetVerticalAlignment(VerticalAlignment::Middle);
-		Paragraph* p = row->GetCells()->GetItem(i)->AddParagraph();
+		row->GetCells()->GetItemInCellCollection(i)->GetCellFormat()->GetShading()->SetBackgroundPatternColor(Color::GetGray());
+	}
+
+	for (size_t i = 0; i < header.size(); i++)
+	{
+		row->GetCells()->GetItemInCellCollection(i)->GetCellFormat()->SetVerticalAlignment(VerticalAlignment::Middle);
+		intrusive_ptr<Paragraph> p = row->GetCells()->GetItemInCellCollection(i)->AddParagraph();
 		p->GetFormat()->SetHorizontalAlignment(HorizontalAlignment::Center);
-		TextRange* txtRange = p->AppendText(header[i].c_str());
+		intrusive_ptr<TextRange> txtRange = p->AppendText(header[i].c_str());
 		txtRange->GetCharacterFormat()->SetBold(true);
 	}
 
-	for (int r = 0; r < data.size(); r++)
+	for (size_t r = 0; r < data.size(); r++)
 	{
-		TableRow* dataRow = table->GetRows()->GetItem(r + 1);
+		intrusive_ptr<TableRow> dataRow = table->GetRows()->GetItemInRowCollection(r + 1);
 		dataRow->SetHeight(20);
 		dataRow->SetHeightType(TableRowHeightType::Exactly);
-		dataRow->GetRowFormat()->SetBackColor(Color::Empty());
-		for (int c = 0; c < data[r].size(); c++)
+
+		for (int i = 0; i < dataRow->GetCells()->GetCount(); i++)
 		{
-			dataRow->GetCells()->GetItem(c)->GetCellFormat()->SetVerticalAlignment(VerticalAlignment::Middle);
-			dataRow->GetCells()->GetItem(c)->AddParagraph()->AppendText(data[r][c].c_str());
+			dataRow->GetCells()->GetItemInCellCollection(i)->GetCellFormat()->GetShading()->SetBackgroundPatternColor(Color::Empty());
+		}
+
+
+		for (size_t c = 0; c < data[r].size(); c++)
+		{
+			dataRow->GetCells()->GetItemInCellCollection(c)->GetCellFormat()->SetVerticalAlignment(VerticalAlignment::Middle);
+			dataRow->GetCells()->GetItemInCellCollection(c)->AddParagraph()->AppendText(data[r][c].c_str());
 		}
 	}
 
@@ -77,10 +89,10 @@ void addTable(Section* section)
 	{
 		if (j % 2 == 0)
 		{
-			TableRow* row2 = table->GetRows()->GetItem(j);
+			intrusive_ptr<TableRow> row2 = table->GetRows()->GetItemInRowCollection(j);
 			for (int f = 0; f < row2->GetCells()->GetCount(); f++)
 			{
-				row2->GetCells()->GetItem(f)->GetCellFormat()->SetBackColor(Color::GetLightBlue());
+				row2->GetCells()->GetItemInCellCollection(f)->GetCellFormat()->GetShading()->SetBackgroundPatternColor(Color::GetLightBlue());
 			}
 		}
 	}

@@ -1,6 +1,6 @@
 #include "pch.h"
 using namespace Spire::Doc;
-using namespace Spire::Common;
+
 
 int main() {
 	wstring input_path = DATAPATH;
@@ -9,16 +9,16 @@ int main() {
 	wstring outputFile = output_path + L"InsertEndnote.docx";
 
 	//Create a document and load file
-	Document* doc = new Document();
+	intrusive_ptr<Document> doc = new Document();
 	doc->LoadFromFile(inputFile.c_str());
-	Section* s = doc->GetSections()->GetItem(0);
-	Paragraph* p = s->GetParagraphs()->GetItem(1);
+	intrusive_ptr<Section> s = doc->GetSections()->GetItemInSectionCollection(0);
+	intrusive_ptr<Paragraph> p = s->GetParagraphs()->GetItemInParagraphCollection(1);
 
 	//add endnote
-	Footnote* endnote = p->AppendFootnote(FootnoteType::Endnote);
+	intrusive_ptr<Footnote> endnote = p->AppendFootnote(FootnoteType::Endnote);
 
 	//append text
-	TextRange* text = endnote->GetTextBody()->AddParagraph()->AppendText(L"Reference: Wikipedia");
+	intrusive_ptr<TextRange> text = endnote->GetTextBody()->AddParagraph()->AppendText(L"Reference: Wikipedia");
 
 	//set text format
 	text->GetCharacterFormat()->SetFontName(L"Impact");
@@ -33,5 +33,5 @@ int main() {
 	//Save the document
 	doc->SaveToFile(outputFile.c_str(), FileFormat::Docx);
 	doc->Close();
-	delete doc;
+
 }

@@ -14,17 +14,17 @@ int main() {
 	in.close();
 
 	//Create a new document.
-	Document* document = new Document();
+	intrusive_ptr<Document> document = new Document();
 
 	//Add a section.
-	Section* sec = document->AddSection();
+	intrusive_ptr<Section> sec = document->AddSection();
 
 	//Add a paragraph and append html string.
-	Paragraph* para = sec->AddParagraph();
+	intrusive_ptr<Paragraph> para = sec->AddParagraph();
 	para->AppendHTML(HTML.c_str());
 
 	//Save it to a Word file.
 	document->SaveToFile(outputFile.c_str(), FileFormat::Docx);
 	document->Close();
-	delete document;
+
 }

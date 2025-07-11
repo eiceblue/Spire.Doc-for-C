@@ -1,6 +1,7 @@
 #include "pch.h"
 using namespace Spire::Doc;
 
+
 int main() {
 	wstring input_path = DATAPATH;
 	wstring inputFile = input_path + L"ToHtmlTemplate.docx";
@@ -8,7 +9,7 @@ int main() {
 	wstring outputFile = output_path + L"ToHtmlExportOption.html";
 
 	//Open a Word document.
-	Document* document = new Document();
+	intrusive_ptr<Document> document = new Document();
 	document->LoadFromFile(inputFile.c_str());
 	//Set whether the css styles are embeded or not. 
 	document->GetHtmlExportOptions()->SetCssStyleSheetFileName(L"sample.css");
@@ -24,6 +25,4 @@ int main() {
 	//Save the document to a html file.
 	document->SaveToFile(outputFile.c_str(), FileFormat::Html);
 	document->Close();
-	delete document;
 }
-

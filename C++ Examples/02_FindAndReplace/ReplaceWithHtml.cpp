@@ -1,113 +1,22 @@
 #include "pch.h"
 #include <algorithm>
+#include <string>
+#include <vector>
+
 using namespace Spire::Doc;
-using namespace Spire::Common;
 
-class TextRangeLocation
+
+void ReplaceWithHTML(intrusive_ptr<TextRange> textRange, std::vector<intrusive_ptr<DocumentObject>>& replacement)
 {
-private:
-	TextRange* m_Text;
-public:
-	TextRangeLocation::TextRangeLocation(TextRange* text)
-	{
-		this->SetText(text);
-	}
-
-	TextRange* TextRangeLocation::GetText()
-	{
-		return m_Text;
-	}
-
-	void TextRangeLocation::SetText(TextRange* value)
-	{
-		m_Text = value;
-	}
-
-	Paragraph* TextRangeLocation::GetOwner()
-	{
-		return this->GetText()->GetOwnerParagraph();
-	}
-
-	int TextRangeLocation::GetIndex()
-	{
-		return this->GetOwner()->GetChildObjects()->IndexOf(this->GetText());
-	}
-
-	int TextRangeLocation::CompareTo(TextRangeLocation* other)
-	{
-		return -(this->GetIndex() - other->GetIndex());
-	}
-};
-int main() {
-	wstring input_path = DATAPATH;
-	wstring inputFile = input_path + L"ReplaceWithHtml.docx";
-	wstring output_path = OUTPUTPATH;
-	wstring outputFile = output_path + L"ReplaceWithHtml.docx";
-	wifstream input1(input_path + L"InputHtml1.txt");
-
-	wstring HTML(istreambuf_iterator<wchar_t>(input1), {});
-	//Load the document from disk.  
-	Document* document = new Document();
-	document->LoadFromFile(inputFile.c_str());
-
-	//collect the objects which is used to replace text
-	vector<DocumentObject*> replacement;
-
-	//create a temporary section
-	Section* tempSection = document->AddSection();
-
-	//add a paragraph to append html
-	Paragraph* par = tempSection->AddParagraph();
-	par->AppendHTML(HTML.c_str());
-
-	//get the objects in temporary section
-	for (int i = 0; i < tempSection->GetBody()->GetChildObjects()->GetCount(); i++)
-	{
-		DocumentObject* obj = tempSection->GetBody()->GetChildObjects()->GetItem(i);
-		DocumentObject* docObj = dynamic_cast<DocumentObject*>(obj);
-		replacement.push_back(docObj);
-	}
-
-	//Find all text which will be replaced.
-	vector<TextSelection*> selections = document->FindAllString(L"[#placeholder]", false, true);
-
-	vector<TextRangeLocation*> locations;
-	for (auto selection : selections)
-	{
-		/*TextRangeLocation tempVar(selection->GetAsOneRange());
-		locations.push_back(&tempVar);*/
-		TextRangeLocation* tempVar = new TextRangeLocation(selection->GetAsOneRange());
-		locations.push_back(tempVar);
-	}
-	sort(locations.begin(), locations.end());
-
-	for (auto location : locations)
-	{
-		//replace the text with HTML.c_str()
-		ReplaceWithHTML(location, replacement);
-	}
-
-	//remove the temp section
-	document->GetSections()->Remove(tempSection);
-
-	//Save the document.
-	document->SaveToFile(outputFile.c_str(), FileFormat::Docx);
-	document->Close();
-	delete document;
-}
-
-void ReplaceWithHTML(TextRangeLocation* location, vector<DocumentObject*>& replacement)
-{
-	TextRange* textRange = location->GetText();
 
 	//textRange index
-	int index = location->GetIndex();
+	int index = textRange->GetOwner()->GetChildObjects()->IndexOf(textRange);
 
 	//get owener paragraph
-	Paragraph* paragraph = location->GetOwner();
+	intrusive_ptr<Paragraph> paragraph = textRange->GetOwnerParagraph();
 
 	//get owner text Body
-	Body* sectionBody = paragraph->GetOwnerTextBody();
+	intrusive_ptr<Body> sectionBody = paragraph->GetOwnerTextBody();
 
 	//get the index of paragraph in section
 	int paragraphIndex = sectionBody->GetChildObjects()->IndexOf(paragraph);
@@ -128,7 +37,7 @@ void ReplaceWithHTML(TextRangeLocation* location, vector<DocumentObject*>& repla
 	else
 	{
 		//split owner paragraph
-		Paragraph* paragraph1 = dynamic_cast<Paragraph*>(paragraph->Clone());
+		intrusive_ptr<Paragraph> paragraph1 = Object::Dynamic_cast<Paragraph>(paragraph->Clone());
 		while (paragraph->GetChildObjects()->GetCount() > index)
 		{
 			paragraph->GetChildObjects()->RemoveAt(index);
@@ -146,8 +55,70 @@ void ReplaceWithHTML(TextRangeLocation* location, vector<DocumentObject*>& repla
 	}
 
 	//insert replacement
-	for (int i = 0; i <= replacement.size() - 1; i++)
+	int finalCount = replacement.size() - 1;
+	for (int i = 0; i <= finalCount; i++)
 	{
 		sectionBody->GetChildObjects()->Insert(replacementIndex + i, replacement[i]->Clone());
 	}
 }
+
+int main()
+{
+	wstring input_path = DATAPATH;
+	wstring output_path = OUTPUTPATH;
+	wstring inputFile = input_path + L"ReplaceWithHtml.docx";
+	wifstream  dataHTML(input_path + L"InputHtml1.txt");
+	wstring outputFile = output_path + L"ReplaceWithHtml.docx";
+
+	wstring HTML(istreambuf_iterator<wchar_t>(dataHTML), {});
+
+
+	//Load the document from disk.  
+	intrusive_ptr<Document> document = new Document();
+	document->LoadFromFile(inputFile.c_str());
+
+	//collect the objects which is used to replace text
+	std::vector<intrusive_ptr<DocumentObject>> replacement;
+
+	//create a temporary section
+	intrusive_ptr<Section> tempSection = document->AddSection();
+
+	//add a paragraph to append html
+	intrusive_ptr<Paragraph> par = tempSection->AddParagraph();
+	par->AppendHTML(HTML.c_str());
+
+	//get the objects in temporary section
+	for (int i = 0; i < tempSection->GetBody()->GetChildObjects()->GetCount(); i++)
+	{
+		intrusive_ptr<DocumentObject> obj = tempSection->GetBody()->GetChildObjects()->GetItem(i);
+		intrusive_ptr<DocumentObject> docObj = Object::Dynamic_cast<DocumentObject>(obj);
+		replacement.push_back(docObj);
+	}
+
+	//Find all text which will be replaced.
+	std::vector<intrusive_ptr<TextSelection>> selections = document->FindAllString(L"[#placeholder]", false, true);
+
+	std::vector<intrusive_ptr<TextRange>> locations;
+	for (intrusive_ptr<TextSelection> selection : selections)
+	{
+		
+		intrusive_ptr<TextRange> tempVar = selection->GetAsOneRange();
+		locations.push_back(tempVar);
+	}
+	std::sort(locations.begin(), locations.end());
+
+	for (intrusive_ptr<TextRange> location : locations)
+	{
+		//replace the text with HTML.c_str()
+		ReplaceWithHTML(location, replacement);
+	}
+
+	//remove the temp section
+	document->GetSections()->Remove(tempSection);
+
+	//Save the document.
+	document->SaveToFile(outputFile.c_str(), FileFormat::Docx);
+	document->Close();
+
+}
+

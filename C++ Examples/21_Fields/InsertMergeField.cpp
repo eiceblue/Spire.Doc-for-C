@@ -1,26 +1,25 @@
 #include "pch.h"
+
 using namespace Spire::Doc;
 
-int main() {
-	wstring input_path = DATAPATH;
-	wstring inputFile = input_path + L"SampleB_2.docx";
-	wstring output_path = OUTPUTPATH;
-	wstring outputFile = output_path + L"InsertMergeField.docx";
+int main()
+{
+	std::wstring outputFile = OUTPUTPATH"/InsertMergeField.docx";
+	std::wstring inputFile = DATAPATH"/SampleB_2.docx";
 
 	//Open a Word document
-	Document* document = new Document();
+	intrusive_ptr<Document> document = new Document();
 	document->LoadFromFile(inputFile.c_str());
 
 	//Get the first section
-	Section* section = document->GetSections()->GetItem(0);
+	intrusive_ptr<Section> section = document->GetSections()->GetItemInSectionCollection(0);
 
-	Paragraph* par = section->AddParagraph();
+	intrusive_ptr<Paragraph> par = section->AddParagraph();
 
 	//Add merge field in the paragraph
-	MergeField* field = dynamic_cast<MergeField*>(par->AppendField(L"MyFieldName", FieldType::FieldMergeField));
+	intrusive_ptr<MergeField> field = Object::Dynamic_cast<MergeField>(par->AppendField(L"MyFieldName", FieldType::FieldMergeField));
 
 	//Save to file
 	document->SaveToFile(outputFile.c_str(), FileFormat::Docx);
 	document->Close();
-	delete document;
 }

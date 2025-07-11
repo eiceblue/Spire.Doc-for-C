@@ -1,49 +1,52 @@
 #include "pch.h"
+#include <fstream>
+#include <locale>
+#include <codecvt>
+
 using namespace Spire::Doc;
 
-int main() {
-	wstring input_path = DATAPATH;
-	wstring inputFile = input_path + L"ReplaceTextInTable.docx";
-	wstring output_path = OUTPUTPATH;
-	wstring outputFile = output_path + L"GetRowCellIndex.txt";
+int main()
+{
+	std::wstring outputFile = OUTPUTPATH"/GetRowCellIndex.txt";
+	std::wstring inputFile = DATAPATH"/ReplaceTextInTable.docx";
 
 	//Load Word from disk
-	Document* doc = new Document();
+	intrusive_ptr<Document> doc = new Document();
 	doc->LoadFromFile(inputFile.c_str());
 
 	//Get the first section
-	Section* section = doc->GetSections()->GetItem(0);
+	intrusive_ptr<Section> section = doc->GetSections()->GetItemInSectionCollection(0);
 
 	//Get the first table in the section
-	Table* table = dynamic_cast<Table*>(section->GetTables()->GetItemInTableCollection(0));
+	intrusive_ptr<Table> table = Object::Dynamic_cast<Table>(section->GetTables()->GetItemInTableCollection(0));
 
-	wstring* content = new wstring();
+	std::wstring content;
 
 	//Get table collections
-	TableCollection* collections = section->GetTables();
+	intrusive_ptr<TableCollection> collections = section->GetTables();
 
 	//Get the table index
 	int tableIndex = collections->IndexOf(table);
 
 	//Get the index of the last table row
-	TableRow* row = table->GetLastRow();
+	intrusive_ptr<TableRow> row = table->GetLastRow();
 	int rowIndex = row->GetRowIndex();
 
 	//Get the index of the last table cell
-	TableCell* cell = dynamic_cast<TableCell*>(row->GetLastChild());
+	intrusive_ptr<TableCell> cell = Object::Dynamic_cast<TableCell>(row->GetLastChild());
 	int cellIndex = cell->GetCellIndex();
 
 	//Append these information into content
-	content->append(L"Table index is " + to_wstring(tableIndex));
-	content->append(L"\nRow index is " + to_wstring(rowIndex));
-	content->append(L"\nCell index is " + to_wstring(cellIndex));
+	content.append(L"Table index is " + std::to_wstring(tableIndex) + L"\r\n");
+	content.append(L"Row index is " + std::to_wstring(rowIndex) + L"\r\n");
+	content.append(L"Cell index is " + std::to_wstring(cellIndex) + L"\r\n");
 
 	//Save to txt file
-	wofstream write(outputFile);
-	write << content->c_str();
+	std::wofstream write(outputFile);
+	auto LocUtf8 = locale(locale(""), new std::codecvt_utf8<wchar_t>);
+	write.imbue(LocUtf8);
+	write << content;
 	write.close();
-	doc->Close();
-	delete doc;
-	delete content;
 
+	doc->Close();
 }

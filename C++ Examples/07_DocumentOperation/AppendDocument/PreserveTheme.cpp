@@ -8,21 +8,20 @@ int main() {
 	wstring outputFile = output_path + L"PreserveTheme.docx";
 
 	//Load the source document
-	Document* doc = new Document();
+	intrusive_ptr<Document> doc = new Document();
 	doc->LoadFromFile(inputFile.c_str());
 
 	//Create a new Word document
-	Document* newWord = new Document();
+	intrusive_ptr<Document> newWord = new Document();
 	//Clone default style, theme, compatibility from the source file to the destination document
 	doc->CloneDefaultStyleTo(newWord);
 	doc->CloneThemesTo(newWord);
 	doc->CloneCompatibilityTo(newWord);
 
 	//Add the cloned section to destination document
-	newWord->GetSections()->Add(doc->GetSections()->GetItem(0)->Clone());
+	newWord->GetSections()->Add(doc->GetSections()->GetItemInSectionCollection(0)->CloneSection());
 
 	//Save and launch document
 	newWord->SaveToFile(outputFile.c_str(), FileFormat::Docx);
 	newWord->Close();
-	delete newWord;
 }

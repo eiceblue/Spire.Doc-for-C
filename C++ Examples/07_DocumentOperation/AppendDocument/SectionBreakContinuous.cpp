@@ -8,18 +8,17 @@ int main() {
 	wstring outputFile = output_path + L"SectionBreakContinuous.docx";
 
 	//Open a Word document
-	Document* doc = new Document();
+	intrusive_ptr<Document> doc = new Document();
 	doc->LoadFromFile(inputFile.c_str());
 
 	int sectionCount = doc->GetSections()->GetCount();
 	for (int i = 0; i < sectionCount; i++)
 	{
-		Section* sec = doc->GetSections()->GetItem(i);
+		intrusive_ptr<Section> sec = doc->GetSections()->GetItemInSectionCollection(i);
 		//Set section break as continuous
 		sec->SetBreakCode(SectionBreakType::NoBreak);
 	}
 
 	doc->SaveToFile(outputFile.c_str());
 	doc->Close();
-	delete doc;
 }

@@ -1,67 +1,8 @@
 #include "pch.h"
+#include <locale>
+#include <codecvt>
+
 using namespace Spire::Doc;
-
-int main() {
-	wstring input_path = DATAPATH;
-	wstring inputFile = input_path + L"Sample.docx";
-	wstring output_path = OUTPUTPATH;
-	wstring outputFile = output_path + L"RecurseAllDocumentObject.txt";
-
-	//Create string builder
-	wstring* builder = new wstring();
-
-	Document* document = new Document();
-	document->LoadFromFile(inputFile.c_str());
-
-	int sectionCount = document->GetSections()->GetCount();
-	for (int i = 0; i < sectionCount; i++)
-	{
-		Section* section = document->GetSections()->GetItem(i);
-		int SectionIndex = document->GetIndex(section);
-		builder->append(L"section index " + to_wstring(SectionIndex) + L" has following ChildObjects");
-		builder->append(L"\n");
-
-		int sectionChildObjectsCount = section->GetBody()->GetChildObjects()->GetCount();
-
-		for (int j = 0; j < sectionChildObjectsCount; j++)
-		{
-			DocumentObject* obj = section->GetBody()->GetChildObjects()->GetItem(j);
-			int objIndex = section->GetBody()->GetIndex(obj);
-			DocumentObjectType objType = obj->GetDocumentObjectType();
-
-			builder->append(L"Index : " + to_wstring(objIndex) + L", ChildObject Type: " + GetDocumentObjectType(objType));
-			builder->append(L"\n");
-
-			if (obj->GetDocumentObjectType() == DocumentObjectType::Paragraph)
-			{
-				Paragraph* paragraph = dynamic_cast<Paragraph*>(obj);
-				int paragraphIndex = section->GetBody()->GetIndex(paragraph);
-
-				builder->append(L"\tParagraph index " + to_wstring(paragraphIndex) + L" has following ChildObjects");
-				builder->append(L"\n");
-
-				int paraChildCount = paragraph->GetChildObjects()->GetCount();
-				for (int k = 0; k < paraChildCount; k++)
-				{
-					DocumentObject* obj2 = paragraph->GetChildObjects()->GetItem(k);
-					int obj2Index = paragraph->GetIndex(obj2);
-					DocumentObjectType obj2Type = obj2->GetDocumentObjectType();
-
-					builder->append(L"\tIndex : " + to_wstring(obj2Index) + L", ChildObject Type: " + GetDocumentObjectType(obj2Type));
-					builder->append(L"\n");
-				}
-			}
-		}
-		builder->append(L" ");
-	}
-	//Save to file.
-	wofstream out;
-	out.open(outputFile);
-	out.flush();
-	out << builder->c_str();
-	out.close();
-	delete builder;
-}
 
 wstring GetDocumentObjectType(DocumentObjectType type)
 {
@@ -260,4 +201,72 @@ wstring GetDocumentObjectType(DocumentObjectType type)
 		return L"Undefined";
 		break;
 	}
+	return L"";
 }
+
+int main()
+{
+	wstring input_path = DATAPATH;
+	wstring output_path = OUTPUTPATH;
+	wstring inputFile = input_path + L"Sample.docx";
+	wstring outputFile = output_path + L"RecurseAllDocumentObject.txt";
+
+	//Create string builder
+	std::wstring builder;
+
+	intrusive_ptr<Document> document =  new Document();
+	document->LoadFromFile(inputFile.c_str());
+
+	//find all document object
+	int sectionCount = document->GetSections()->GetCount();
+	for (int i = 0; i < sectionCount; i++)
+	{
+		intrusive_ptr<Section> section = document->GetSections()->GetItemInSectionCollection(i);
+		int SectionIndex = document->GetIndex(section);
+		builder.append(L"section index " + to_wstring(SectionIndex) + L" has following ChildObjects");
+		builder.append(L"\n");
+
+		int sectionChildObjectsCount = section->GetBody()->GetChildObjects()->GetCount();
+
+		for (int j = 0; j < sectionChildObjectsCount; j++)
+		{
+			intrusive_ptr<DocumentObject> obj = section->GetBody()->GetChildObjects()->GetItem(j);
+			int objIndex = section->GetBody()->GetIndex(obj);
+			DocumentObjectType objType = obj->GetDocumentObjectType();
+
+			builder.append(L"Index : " + to_wstring(objIndex) + L", ChildObject Type: " + GetDocumentObjectType(objType));
+			builder.append(L"\n");
+
+			if (obj->GetDocumentObjectType() == DocumentObjectType::Paragraph)
+			{
+				intrusive_ptr<Paragraph> paragraph = Object::Dynamic_cast<Paragraph>(obj);
+				int paragraphIndex = section->GetBody()->GetIndex(paragraph);
+
+				builder.append(L"\tParagraph index " + to_wstring(paragraphIndex) + L" has following ChildObjects");
+				builder.append(L"\n");
+
+				int paraChildCount = paragraph->GetChildObjects()->GetCount();
+				for (int k = 0; k < paraChildCount; k++)
+				{
+					intrusive_ptr<DocumentObject> obj2 = paragraph->GetChildObjects()->GetItem(k);
+					int obj2Index = paragraph->GetIndex(obj2);
+					DocumentObjectType obj2Type = obj2->GetDocumentObjectType();
+
+					builder.append(L"\tIndex : " + to_wstring(obj2Index) + L", ChildObject Type: " + GetDocumentObjectType(obj2Type));
+					builder.append(L"\n");
+				}
+			}
+		}
+		builder.append(L" ");
+	}
+	//Save to file.
+	std::wofstream write(outputFile);
+	auto LocUtf8 = locale(locale(""), new std::codecvt_utf8<wchar_t>);
+	write.imbue(LocUtf8);
+	write << builder;
+	write.close();
+	document->Close();
+}
+
+
+		

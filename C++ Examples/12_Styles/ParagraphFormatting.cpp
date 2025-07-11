@@ -4,18 +4,18 @@ using namespace Spire::Doc;
 int main() {
 	wstring output_path = OUTPUTPATH;
 	wstring outputFile = output_path + L"ParagraphFormatting.docx";
-	
+
 	//Initialize a document
-	Document* document = new Document();
-	Section* sec = document->AddSection();
-	Paragraph* para = sec->AddParagraph();
+	intrusive_ptr<Document> document = new Document();
+	intrusive_ptr<Section> sec = document->AddSection();
+	intrusive_ptr<Paragraph> para = sec->AddParagraph();
 	para->AppendText(L"Paragraph Formatting");
 	para->ApplyStyle(BuiltinStyle::Title);
 
 	para = sec->AddParagraph();
 	para->AppendText(L"This paragraph is surrounded with borders.");
 	para->GetFormat()->GetBorders()->SetBorderType(BorderStyle::Single);
-	para->GetFormat()->GetBorders()->SetColor(Spire::Common::Color::GetRed());
+	para->GetFormat()->GetBorders()->SetColor(Color::GetRed());
 
 	para = sec->AddParagraph();
 	para->AppendText(L"The alignment of this paragraph is Left.");
@@ -39,7 +39,7 @@ int main() {
 
 	para = sec->AddParagraph();
 	para->AppendText(L"This paragraph has the gray shadow.");
-	para->GetFormat()->SetBackColor(Spire::Common::Color::GetGray());
+	para->GetFormat()->SetBackColor(Color::GetGray());
 
 	para = sec->AddParagraph();
 	para->AppendText(L"This paragraph has the following indentations: Left indentation is 10pt, right indentation is 10pt, first line indentation is 15pt.");
@@ -62,5 +62,4 @@ int main() {
 	//Save as docx file.
 	document->SaveToFile(outputFile.c_str(), FileFormat::Docx);
 	document->Close();
-	delete document;
 }

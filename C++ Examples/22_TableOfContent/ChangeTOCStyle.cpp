@@ -1,6 +1,5 @@
 #include "pch.h"
 using namespace Spire::Doc;
-using namespace Spire::Common;
 
 int main() {
 	wstring input_path = DATAPATH;
@@ -9,11 +8,11 @@ int main() {
 	wstring outputFile = output_path + L"ChangeTOCStyle.docx";
 
 	//Load document from disk
-	Document* doc = new Document();
+	intrusive_ptr<Document> doc = new Document();
 	doc->LoadFromFile(inputFile.c_str());
 
 	//Defind a Toc style
-	ParagraphStyle* tocStyle = dynamic_cast<ParagraphStyle*>(Style::CreateBuiltinStyle(BuiltinStyle::Toc1, doc));
+	intrusive_ptr<ParagraphStyle> tocStyle = Object::Dynamic_cast<ParagraphStyle>(Style::CreateBuiltinStyle(BuiltinStyle::Toc1, doc));
 	tocStyle->GetCharacterFormat()->SetFontName(L"Aleo");
 	tocStyle->GetCharacterFormat()->SetFontSize(15.0f);
 	tocStyle->GetCharacterFormat()->SetTextColor(Color::GetCadetBlue());
@@ -22,22 +21,22 @@ int main() {
 	//Loop through sections
 	for (int i = 0; i < doc->GetSections()->GetCount(); i++)
 	{
-		Section* section = doc->GetSections()->GetItem(i);
+		intrusive_ptr<Section> section = doc->GetSections()->GetItemInSectionCollection(i);
 		//Loop through content of section
 		for (int j = 0; j < section->GetBody()->GetChildObjects()->GetCount(); j++)
 		{
-			DocumentObject* obj = section->GetBody()->GetChildObjects()->GetItem(j);
+			intrusive_ptr<DocumentObject> obj = section->GetBody()->GetChildObjects()->GetItem(j);
 			//Find the structure document tag
-			if (dynamic_cast<StructureDocumentTag*>(obj) != nullptr)
+			if (Object::CheckType<StructureDocumentTag>(obj))
 			{
-				StructureDocumentTag* tag = dynamic_cast<StructureDocumentTag*>(obj);
+				intrusive_ptr<StructureDocumentTag> tag = boost::dynamic_pointer_cast<StructureDocumentTag>(obj);
 				//Find the paragraph where the TOC1 locates
 				for (int k = 0; k < tag->GetChildObjects()->GetCount(); k++)
 				{
-					DocumentObject* cObj = tag->GetChildObjects()->GetItem(k);
-					if (dynamic_cast<Paragraph*>(cObj) != nullptr)
+					intrusive_ptr<DocumentObject> cObj = tag->GetChildObjects()->GetItem(k);
+					if (Object::CheckType<Paragraph>(cObj))
 					{
-						Paragraph* para = dynamic_cast<Paragraph*>(cObj);
+						intrusive_ptr<Paragraph> para = boost::dynamic_pointer_cast<Paragraph>(cObj);
 						if (wcscmp(para->GetStyleName(), L"TOC1") == 0)
 						{
 							//Apply the new style for TOC1 paragraph
@@ -52,5 +51,4 @@ int main() {
 	//Save the Word file
 	doc->SaveToFile(outputFile.c_str(), FileFormat::Docx2013);
 	doc->Close();
-	delete doc;
 }

@@ -4,16 +4,16 @@ using namespace Spire::Doc;
 int main() {
 	wstring output_path = OUTPUTPATH;
 	wstring outputFile = output_path + L"CharacterFormatting.docx";
-	
+
 	//Initialize a document
-	Document* document = new Document();
-	Section* sec = document->AddSection();
-	Paragraph* titleParagraph = sec->AddParagraph();
+	intrusive_ptr<Document> document = new Document();
+	intrusive_ptr<Section> sec = document->AddSection();
+	intrusive_ptr<Paragraph> titleParagraph = sec->AddParagraph();
 	titleParagraph->AppendText(L"Font Styles and Effects ");
 	titleParagraph->ApplyStyle(BuiltinStyle::Title);
 
-	Paragraph* paragraph = sec->AddParagraph();
-	TextRange* tr = paragraph->AppendText(L"Strikethough Text");
+	intrusive_ptr<Paragraph> paragraph = sec->AddParagraph();
+	intrusive_ptr<TextRange> tr = paragraph->AppendText(L"Strikethough Text");
 	tr->GetCharacterFormat()->SetIsStrikeout(true);
 
 	paragraph->AppendBreak(BreakType::LineBreak);
@@ -48,7 +48,7 @@ int main() {
 	paragraph->AppendBreak(BreakType::LineBreak);
 	tr = paragraph->AppendText(L"Emboss Text");
 	tr->GetCharacterFormat()->SetEmboss(true);
-	tr->GetCharacterFormat()->SetTextColor(Spire::Common::Color::GetWhite());
+	tr->GetCharacterFormat()->SetTextColor(Color::GetWhite());
 
 	paragraph->AppendBreak(BreakType::LineBreak);
 	tr = paragraph->AppendText(L"Hidden:");
@@ -58,7 +58,7 @@ int main() {
 	paragraph->AppendBreak(BreakType::LineBreak);
 	tr = paragraph->AppendText(L"Engrave Text");
 	tr->GetCharacterFormat()->SetEngrave(true);
-	tr->GetCharacterFormat()->SetTextColor(Spire::Common::Color::GetWhite());
+	tr->GetCharacterFormat()->SetTextColor(Color::GetWhite());
 
 	paragraph->AppendBreak(BreakType::LineBreak);
 	tr = paragraph->AppendText(L"WesternFonts中文字体");
@@ -72,7 +72,7 @@ int main() {
 
 	paragraph->AppendBreak(BreakType::LineBreak);
 	tr = paragraph->AppendText(L"Font Color");
-	tr->GetCharacterFormat()->SetTextColor(Spire::Common::Color::GetRed());
+	tr->GetCharacterFormat()->SetTextColor(Color::GetRed());
 
 	paragraph->AppendBreak(BreakType::LineBreak);
 	tr = paragraph->AppendText(L"Bold Italic Text");
@@ -85,11 +85,11 @@ int main() {
 
 	paragraph->AppendBreak(BreakType::LineBreak);
 	tr = paragraph->AppendText(L"Highlight Text");
-	tr->GetCharacterFormat()->SetHighlightColor(Spire::Common::Color::GetYellow());
+	tr->GetCharacterFormat()->SetHighlightColor(Color::GetYellow());
 
 	paragraph->AppendBreak(BreakType::LineBreak);
 	tr = paragraph->AppendText(L"Text has shading");
-	tr->GetCharacterFormat()->SetTextBackgroundColor(Spire::Common::Color::GetGreen());
+	tr->GetCharacterFormat()->SetTextBackgroundColor(Color::GetGreen());
 
 	paragraph->AppendBreak(BreakType::LineBreak);
 	tr = paragraph->AppendText(L"Border Around Text");
@@ -105,5 +105,5 @@ int main() {
 
 	document->SaveToFile(outputFile.c_str(), FileFormat::Docx);
 	document->Close();
-	delete document;
-}	
+
+}

@@ -9,21 +9,20 @@ int main() {
 	wstring outputFile = output_path + L"RemoveTableOfContent.docx";
 
 	//Create a document
-	Document* document = new Document();
+	intrusive_ptr<Document> document = new Document();
 
 	//Load the document from disk.
 	document->LoadFromFile(inputFile.c_str());
 
 	//Get the first GetBody() from the first section
-	Body* body = document->GetSections()->GetItem(0)->GetBody();
+	intrusive_ptr<Body> body = document->GetSections()->GetItemInSectionCollection(0)->GetBody();
 
 	//Remove TOC from first GetBody()
-	wregex regexStr(L"TOC\\w+");
+	intrusive_ptr<Regex> reg = new Regex(L"TOC\\w+");
+
 	for (int i = 0; i < body->GetParagraphs()->GetCount(); i++)
 	{
-		wstring styleName = body->GetParagraphs()->GetItem(i)->GetStyleName();
-
-		if (regex_match(styleName.c_str(), regexStr))
+		if (reg->IsMatch(body->GetParagraphs()->GetItemInParagraphCollection(i)->GetStyleName()))
 		{
 			body->GetParagraphs()->RemoveAt(i);
 			i--;
@@ -33,6 +32,5 @@ int main() {
 	//Save the document.
 	document->SaveToFile(outputFile.c_str(), FileFormat::Docx);
 	document->Close();
-	delete document;
 }
 

@@ -1,22 +1,21 @@
 #include "pch.h"
+
 using namespace Spire::Doc;
 
-int main() {
-	wstring input_path = DATAPATH;
-	wstring inputFile = input_path + L"TableSample.docx";
-	wstring output_path = OUTPUTPATH;
-	wstring outputFile = output_path + L"AutoFitToFixed.docx";
+int main()
+{
+	std::wstring outputFile = OUTPUTPATH"/AutoFitToFixed.docx";
+	std::wstring inputFile = DATAPATH"/TableSample.docx";
 
 	//Create a document
-	Document* document = new Document();
+	intrusive_ptr<Document> document = new Document();
 	//Load file
 	document->LoadFromFile(inputFile.c_str());
-	Section* section = document->GetSections()->GetItem(0);
-	Table* table = dynamic_cast<Table*>(section->GetTables()->GetItemInTableCollection(0));
+	intrusive_ptr<Section> section = document->GetSections()->GetItemInSectionCollection(0);
+	intrusive_ptr<Table> table = Object::Dynamic_cast<Table>(section->GetTables()->GetItemInTableCollection(0));
 	//The table is set to a fixed size
 	table->AutoFit(AutoFitBehaviorType::FixedColumnWidths);
 	//Save to file
 	document->SaveToFile(outputFile.c_str());
 	document->Close();
-	delete document;
 }

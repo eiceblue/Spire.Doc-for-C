@@ -1,32 +1,13 @@
 #include "pch.h"
 using namespace Spire::Doc;
 
-int main() {
-	wstring output_path = OUTPUTPATH;
-	wstring outputFile = output_path + L"CreateBookmarkForTable.docx";
-
-	//Create word document.
-	Document* document = new Document();
-
-	//Add a new section.
-	Section* section = document->AddSection();
-
-	//Create bookmark for a table
-	CreateBookmarkForTable(document, section);
-
-	//Save the document.
-	document->SaveToFile(outputFile.c_str(), FileFormat::Docx);
-	document->Close();
-	delete document;
-}
-
-void CreateBookmarkForTable(Document* doc, Section* section)
+void CreateBookmarkForTable(intrusive_ptr<Document> doc, intrusive_ptr<Section> section)
 {
 	//Add a paragraph
-	Paragraph* paragraph = section->AddParagraph();
+	intrusive_ptr<Paragraph> paragraph = section->AddParagraph();
 
 	//Append text for added paragraph
-	TextRange* txtRange = paragraph->AppendText(L"The following example demonstrates how to create bookmark for a table in a Word document.");
+	intrusive_ptr<TextRange> txtRange = paragraph->AppendText(L"The following example demonstrates how to create bookmark for a table in a Word document.");
 
 	//Set the font in italic
 	txtRange->GetCharacterFormat()->SetItalic(true);
@@ -38,30 +19,50 @@ void CreateBookmarkForTable(Document* doc, Section* section)
 	paragraph->AppendBookmarkEnd(L"CreateBookmark");
 
 	//Add table
-	Table* table = section->AddTable(true);
+	intrusive_ptr<Table> table = section->AddTable(true);
 
 	//Set the number of rows and columns
 	table->ResetCells(2, 2);
 
 	//Append text for table cells		
-	TextRange* range = table->GetRows()->GetItem(0)->GetCells()->GetItem(0)->AddParagraph()->AppendText(L"sampleA");
-	range = table->GetRows()->GetItem(0)->GetCells()->GetItem(1)->AddParagraph()->AppendText(L"sampleB");
-	range = table->GetRows()->GetItem(1)->GetCells()->GetItem(0)->AddParagraph()->AppendText(L"120");
-	range = table->GetRows()->GetItem(1)->GetCells()->GetItem(1)->AddParagraph()->AppendText(L"260");
+	intrusive_ptr<TextRange> range = table->GetRows()->GetItemInRowCollection(0)->GetCells()->GetItemInCellCollection(0)->AddParagraph()->AppendText(L"sampleA");
+	range = table->GetRows()->GetItemInRowCollection(0)->GetCells()->GetItemInCellCollection(1)->AddParagraph()->AppendText(L"sampleB");
+	range = table->GetRows()->GetItemInRowCollection(1)->GetCells()->GetItemInCellCollection(0)->AddParagraph()->AppendText(L"120");
+	range = table->GetRows()->GetItemInRowCollection(1)->GetCells()->GetItemInCellCollection(1)->AddParagraph()->AppendText(L"260");
 
 	//Get the bookmark by index.
-	Bookmark* bookmark = doc->GetBookmarks()->GetItem(0);
+	intrusive_ptr<Bookmark> bookmark = doc->GetBookmarks()->GetItem(0);
+
+	//Get the name of bookmark.
+	//std::wstring bookmarkName = bookmark->GetName();
 
 	//Locate the bookmark by name.
-	BookmarksNavigator* navigator = new BookmarksNavigator(doc);
+	intrusive_ptr<BookmarksNavigator> navigator = new BookmarksNavigator(doc);
 	navigator->MoveToBookmark(bookmark->GetName());
 
 	//Add table to TextBodyPart
-	TextBodyPart* part = navigator->GetBookmarkContent();
+	intrusive_ptr<TextBodyPart> part = navigator->GetBookmarkContent();
 	part->GetBodyItems()->Add(table);
 
 	//Replace bookmark cotent with table
 	navigator->ReplaceBookmarkContent(part);
 
-	delete navigator;
+	//delete navigator;
+}
+
+int main()
+{
+	std::wstring outputFile = OUTPUTPATH"/CreateBookmarkForTable.docx";
+	//Create word document.
+	intrusive_ptr<Document> document = new Document();
+
+	//Add a new section.
+	intrusive_ptr<Section> section = document->AddSection();
+
+	//Create bookmark for a table
+	CreateBookmarkForTable(document, section);
+
+	//Save the document.
+	document->SaveToFile(outputFile.c_str(), FileFormat::Docx);
+	document->Close();
 }

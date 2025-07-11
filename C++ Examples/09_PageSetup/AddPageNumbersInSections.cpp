@@ -1,6 +1,7 @@
 #include "pch.h"
 using namespace Spire::Doc;
 
+
 int main() {
 	wstring input_path = DATAPATH;
 	wstring inputFile = input_path + L"Template_Docx_4.docx";
@@ -8,7 +9,7 @@ int main() {
 	wstring outputFile = output_path + L"AddPageNumbersInSections.docx";
 
 	//Create Word document.
-	Document* document = new Document();
+	intrusive_ptr<Document> document = new Document();
 
 	//Load the file from disk.
 	document->LoadFromFile(inputFile.c_str());
@@ -16,8 +17,8 @@ int main() {
 	//Repeat step2 and Step3 for the rest sections, so change the code with for loop.
 	for (int i = 0; i < 3; i++)
 	{
-		HeaderFooter* footer = document->GetSections()->GetItem(i)->GetHeadersFooters()->GetFooter();
-		Paragraph* footerParagraph = footer->AddParagraph();
+		intrusive_ptr<HeaderFooter> footer = document->GetSections()->GetItemInSectionCollection(i)->GetHeadersFooters()->GetFooter();
+		intrusive_ptr<Paragraph> footerParagraph = footer->AddParagraph();
 		footerParagraph->AppendField(L"page number", FieldType::FieldPage);
 		footerParagraph->AppendText(L" of ");
 		footerParagraph->AppendField(L"number of pages", FieldType::FieldSectionPages);
@@ -29,13 +30,11 @@ int main() {
 		}
 		else
 		{
-			document->GetSections()->GetItem(i + 1)->GetPageSetup()->SetRestartPageNumbering(true);
-			document->GetSections()->GetItem(i + 1)->GetPageSetup()->SetPageStartingNumber(1);
+			document->GetSections()->GetItemInSectionCollection(i + 1)->GetPageSetup()->SetRestartPageNumbering(true);
+			document->GetSections()->GetItemInSectionCollection(i + 1)->GetPageSetup()->SetPageStartingNumber(1);
 		}
 	}
-
 	//Save to file.
 	document->SaveToFile(outputFile.c_str(), FileFormat::Docx2013);
 	document->Close();
-	delete document;
 }

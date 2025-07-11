@@ -2,43 +2,40 @@
 using namespace Spire::Doc;
 
 int main() {
-	wstring input_path = DATAPATH;
-	wstring inputFile = input_path  + L"ShapeWithAlternativeText.docx";
-	wstring output_path = OUTPUTPATH;
-	wstring outputFile = output_path + L"GetAlternativeText.txt";
+	std::wstring inputFile = DATAPATH"/ShapeWithAlternativeText.docx";
+	std::wstring outputFile = OUTPUTPATH"/GetAlternativeText.txt";
+
 
 	//Create a document
-	Document* document = new Document();
+	intrusive_ptr<Document> document = new Document();
 	//Create string builder
-	wstring* builder = new wstring();
+	std::wstring builder;
 	document->LoadFromFile(inputFile.c_str());
 
 	//Loop through shapes and get the AlternativeText
 	for (int i = 0; i < document->GetSections()->GetCount(); i++)
 	{
-		Section* section = document->GetSections()->GetItem(i);
+		intrusive_ptr<Section> section = document->GetSections()->GetItemInSectionCollection(i);
 		for (int j = 0; j < section->GetParagraphs()->GetCount(); j++)
 		{
-			Paragraph* para = section->GetParagraphs()->GetItem(j);
+			intrusive_ptr<Paragraph> para = section->GetParagraphs()->GetItemInParagraphCollection(j);
 			for (int k = 0; k < para->GetChildObjects()->GetCount(); k++)
 			{
-				DocumentObject* obj = para->GetChildObjects()->GetItem(k);
-				if (dynamic_cast<ShapeObject*>(obj) != nullptr)
+				intrusive_ptr<DocumentObject> obj = para->GetChildObjects()->GetItem(k);
+				if (Object::CheckType<ShapeObject>(obj))
 				{
-					wstring text = (dynamic_cast<ShapeObject*>(obj))->GetAlternativeText();
+					std::wstring text = (boost::dynamic_pointer_cast<ShapeObject>(obj))->GetAlternativeText();
 					//Append the alternative text in builder
-					builder->append(text);
-					builder->append(L"\n");
+					builder.append(text);
+					builder.append(L"\n");
 				}
 			}
 		}
 	}
 
 	//Save doc file.
-	wofstream write(outputFile);
-	write << builder->c_str();
-	write.close();
+	std::wofstream foo(outputFile);
+	foo << builder.c_str();
+	foo.close();
 	document->Close();
-	delete document;
-	delete builder;
 }

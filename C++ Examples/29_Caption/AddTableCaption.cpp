@@ -8,13 +8,13 @@ int main() {
 	wstring outputFile = output_path + L"AddTableCaption.docx";
 
 	//Create word document
-	Document* document = new Document();
+	intrusive_ptr<Document> document = new Document();
 	//Load file
 	document->LoadFromFile(inputFile.c_str());
 
 	//Get the first table
-	Body* body = document->GetSections()->GetItem(0)->GetBody();
-	Table* table = dynamic_cast<Table*>(body->GetTables()->GetItemInTableCollection(0));
+	intrusive_ptr<Body> body = document->GetSections()->GetItemInSectionCollection(0)->GetBody();
+	intrusive_ptr<Table> table = Object::Dynamic_cast<Table>(body->GetTables()->GetItemInTableCollection(0));
 
 	//Add caption to the table
 	table->AddCaption(L"Table", CaptionNumberingFormat::Number, CaptionPosition::BelowItem);
@@ -25,5 +25,5 @@ int main() {
 	//Save the Word document
 	document->SaveToFile(outputFile.c_str(), FileFormat::Docx2013);
 	document->Close();
-	delete document;
+
 }

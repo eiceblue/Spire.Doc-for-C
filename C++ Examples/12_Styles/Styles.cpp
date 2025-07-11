@@ -1,4 +1,4 @@
-#include "pch.h"
+﻿#include "pch.h"
 using namespace Spire::Doc;
 
 int main() {
@@ -6,49 +6,56 @@ int main() {
 	wstring outputFile = output_path + L"Styles.docx";
 
 	//Initialize a document
-	Document* document = new Document();
-	Section* sec = document->AddSection();
-
+	intrusive_ptr<Document> document = new Document();
+	intrusive_ptr<Section> sec = document->AddSection();
 	//Add default title style to document and modify
-	Style* titleStyle = document->AddStyle(BuiltinStyle::Title);
+	intrusive_ptr<Style> titleStyle = document->AddStyle(BuiltinStyle::Title);
+
 	titleStyle->GetCharacterFormat()->SetFontName(L"cambria");
 	titleStyle->GetCharacterFormat()->SetFontSize(28);
 
-	titleStyle->GetCharacterFormat()->SetTextColor(Spire::Common::Color::FromArgb(42, 123, 136));
-	if (dynamic_cast<ParagraphStyle*>(titleStyle) != nullptr)
+	titleStyle->GetCharacterFormat()->SetTextColor(Color::FromArgb(42, 123, 136));
+	//Judge if it is Paragraph Style and then set paragraph format
+	if (Object::Dynamic_cast<ParagraphStyle>(titleStyle) != nullptr)
 	{
-		ParagraphStyle* ps = dynamic_cast<ParagraphStyle*>(titleStyle);
+		intrusive_ptr<ParagraphStyle> ps = Object::Dynamic_cast<ParagraphStyle>(titleStyle);
 		ps->GetParagraphFormat()->GetBorders()->GetBottom()->SetBorderType(BorderStyle::Single);
-		ps->GetParagraphFormat()->GetBorders()->GetBottom()->SetColor(Spire::Common::Color::FromArgb(42, 123, 136));
+		ps->GetParagraphFormat()->GetBorders()->GetBottom()->SetColor(Color::FromArgb(42, 123, 136));
 		ps->GetParagraphFormat()->GetBorders()->GetBottom()->SetLineWidth(1.5f);
 		ps->GetParagraphFormat()->SetHorizontalAlignment(HorizontalAlignment::Left);
 	}
-
 	//Add default normal style and modify
-	Style* normalStyle = document->AddStyle(BuiltinStyle::Normal);
+	intrusive_ptr<Style> normalStyle = document->AddStyle(BuiltinStyle::Normal);
+
 	normalStyle->GetCharacterFormat()->SetFontName(L"cambria");
 	normalStyle->GetCharacterFormat()->SetFontSize(11);
-	Style* heading1Style = document->AddStyle(BuiltinStyle::Heading1);
+	//Add default heading1 style
+	intrusive_ptr<Style> heading1Style = document->AddStyle(BuiltinStyle::Heading1);
+
 	heading1Style->GetCharacterFormat()->SetFontName(L"cambria");
 	heading1Style->GetCharacterFormat()->SetFontSize(14);
-	heading1Style->GetCharacterFormat()->SetBold(true);
-	heading1Style->GetCharacterFormat()->SetTextColor(Spire::Common::Color::FromArgb(42, 123, 136));
 
+	heading1Style->GetCharacterFormat()->SetBold(true);
+	heading1Style->GetCharacterFormat()->SetTextColor(Color::FromArgb(42, 123, 136));
 	//Add default heading2 style
-	Style* heading2Style = document->AddStyle(BuiltinStyle::Heading2);
+	intrusive_ptr<Style> heading2Style = document->AddStyle(BuiltinStyle::Heading2);
+
 	heading2Style->GetCharacterFormat()->SetFontName(L"cambria");
 	heading2Style->GetCharacterFormat()->SetFontSize(12);
+
 	heading2Style->GetCharacterFormat()->SetBold(true);
 
 	//List style
-	ListStyle* bulletList = new ListStyle(document, ListType::Bulleted);
+	intrusive_ptr<ListStyle> bulletList = new ListStyle(document, ListType::Bulleted);
+
 	bulletList->GetCharacterFormat()->SetFontName(L"cambria");
 	bulletList->GetCharacterFormat()->SetFontSize(12);
+
 	bulletList->SetName(L"bulletList");
 	document->GetListStyles()->Add(bulletList);
 
 	//Apply the style
-	Paragraph* paragraph = sec->AddParagraph();
+	intrusive_ptr<Paragraph> paragraph = sec->AddParagraph();
 	paragraph->AppendText(L"Your Name");
 	paragraph->ApplyStyle(BuiltinStyle::Title);
 
@@ -125,5 +132,4 @@ int main() {
 	//Save to docx file.
 	document->SaveToFile(outputFile.c_str(), FileFormat::Docx);
 	document->Close();
-	delete document;
 }

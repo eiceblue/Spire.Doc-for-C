@@ -1,15 +1,18 @@
 #include "pch.h"
 using namespace Spire::Doc;
-using namespace Spire::Common;
 
+void SetPage(intrusive_ptr<Section> section);
+void InsertCover(intrusive_ptr<Section> section);
+void InsertContent(intrusive_ptr<Section> section);
+wstring GetFieldType(FieldType type);
+bool IsFieldType(FieldType type);
 int main() {
 	wstring output_path = OUTPUTPATH;
 	wstring outputFile = output_path + L"InsertBreak.docx";
-
 	//Create word document
-	Document* document = new Document();
+	intrusive_ptr<Document> document = new Document();
 
-	Section* section = document->AddSection();
+	intrusive_ptr<Section> section = document->AddSection();
 
 	//page setup
 	SetPage(section);
@@ -27,10 +30,10 @@ int main() {
 	//Save as doc file.
 	document->SaveToFile(outputFile.c_str(), FileFormat::Docx);
 	document->Close();
-	delete document;
+
 }
 
-void SetPage(Section* section)
+void SetPage(intrusive_ptr<Section> section)
 {
 	//the unit of all measures below is point, 1point = 0.3528 mm
 	section->GetPageSetup()->SetPageSize(PageSize::A4());
@@ -40,21 +43,21 @@ void SetPage(Section* section)
 	section->GetPageSetup()->GetMargins()->SetRight(89.85f);
 }
 
-void InsertCover(Section* section)
+void InsertCover(intrusive_ptr<Section> section)
 {
-	ParagraphStyle* smallStyle = new ParagraphStyle(section->GetDocument());
+	intrusive_ptr<ParagraphStyle> smallStyle = new ParagraphStyle(section->GetDocument());
 	smallStyle->SetName(L"small");
 	smallStyle->GetCharacterFormat()->SetFontName(L"Arial");
 	smallStyle->GetCharacterFormat()->SetFontSize(9);
 	smallStyle->GetCharacterFormat()->SetTextColor(Color::GetGray());
 	section->GetDocument()->GetStyles()->Add(smallStyle);
 
-	Paragraph* paragraph = section->AddParagraph();
+	intrusive_ptr<Paragraph> paragraph = section->AddParagraph();
 	paragraph->AppendText(L"The sample demonstrates how to insert section break.");
 	paragraph->ApplyStyle(smallStyle->GetName());
 
-	Paragraph* title = section->AddParagraph();
-	TextRange* text = title->AppendText(L"Field Types Supported by Spire.Doc");
+	intrusive_ptr<Paragraph> title = section->AddParagraph();
+	intrusive_ptr<TextRange> text = title->AppendText(L"Field Types Supported by Spire.Doc");
 	text->GetCharacterFormat()->SetFontName(L"Arial");
 	text->GetCharacterFormat()->SetFontSize(20);
 	text->GetCharacterFormat()->SetBold(true);
@@ -69,9 +72,9 @@ void InsertCover(Section* section)
 
 }
 
-void InsertContent(Section* section)
+void InsertContent(intrusive_ptr<Section> section)
 {
-	ParagraphStyle* list = new ParagraphStyle(section->GetDocument());
+	intrusive_ptr<ParagraphStyle> list = new ParagraphStyle(section->GetDocument());
 	list->SetName(L"list");
 	list->GetCharacterFormat()->SetFontName(L"Arial");
 	list->GetCharacterFormat()->SetFontSize(11);
@@ -79,8 +82,8 @@ void InsertContent(Section* section)
 	list->GetParagraphFormat()->SetLineSpacingRule(LineSpacingRule::Multiple);
 	section->GetDocument()->GetStyles()->Add(list);
 
-	Paragraph* title = section->AddParagraph();
-	TextRange* text = title->AppendText(L"Field type list:");
+	intrusive_ptr<Paragraph> title = section->AddParagraph();
+	intrusive_ptr<TextRange> text = title->AppendText(L"Field type list:");
 	title->ApplyStyle(list->GetName());
 
 	bool first = true;
@@ -92,7 +95,7 @@ void InsertContent(Section* section)
 		{
 			continue;
 		}
-		Paragraph* paragraph = section->AddParagraph();
+		intrusive_ptr<Paragraph> paragraph = section->AddParagraph();
 		//paragraph->AppendText(StringHelper::formatSimple(L"{0} is supported in Spire.Doc", type));
 		wstring* builder = new wstring();
 		wstring targetStr = builder->append(GetFieldType(type)).append(L" is supported in Spire.Doc");
@@ -107,6 +110,7 @@ void InsertContent(Section* section)
 			paragraph->GetListFormat()->ContinueListNumbering();
 		}
 		paragraph->ApplyStyle(list->GetName());
+		delete builder;
 	}
 }
 wstring GetFieldType(FieldType type)

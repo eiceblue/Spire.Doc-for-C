@@ -12,14 +12,15 @@ int main() {
 		.append(L"<tr> <td> 2 </td><td> Jackson </td><td> 94 </td> </tr>")
 		.append(L"</table>");
 
-	Document* doc = new Document();
-	Section* section = doc->AddSection();
-	Paragraph* paragraph = section->AddParagraph();
+
+	intrusive_ptr<Document> doc = new Document();
+	intrusive_ptr<Section> section = doc->AddSection();
+	intrusive_ptr<Paragraph> paragraph = section->AddParagraph();
 	paragraph->AppendHTML(htmlString.c_str());
 
 	//Create StructureDocumentTag for document
-	StructureDocumentTag* sdt = new StructureDocumentTag(doc);
-	Section* section2 = doc->AddSection();
+	intrusive_ptr<StructureDocumentTag> sdt = new StructureDocumentTag(doc);
+	intrusive_ptr<Section> section2 = doc->AddSection();
 	section2->GetBody()->GetChildObjects()->Add(sdt);
 
 	//Specify the type
@@ -27,7 +28,7 @@ int main() {
 
 	for (int i = 0; i < section->GetBody()->GetChildObjects()->GetCount(); i++)
 	{
-		DocumentObject* obj = section->GetBody()->GetChildObjects()->GetItem(i);
+		intrusive_ptr<DocumentObject> obj = section->GetBody()->GetChildObjects()->GetItem(i);
 		if (obj->GetDocumentObjectType() == DocumentObjectType::Table)
 		{
 			sdt->GetSDTContent()->GetChildObjects()->Add(obj->Clone());
@@ -42,5 +43,4 @@ int main() {
 	//Save the Word document
 	doc->SaveToFile(outputFile.c_str(), FileFormat::Docx2013);
 	doc->Close();
-	delete doc;
 }

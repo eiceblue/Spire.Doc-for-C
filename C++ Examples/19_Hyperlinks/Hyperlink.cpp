@@ -1,27 +1,11 @@
 #include "pch.h"
+
 using namespace Spire::Doc;
 
-int main() {
-	wstring output_path = OUTPUTPATH;
-	wstring outputFile = output_path + L"Hyperlink.docx";
-
-	//Open a blank word document as template
-	Document* document = new Document();
-	Section* section = document->AddSection();
-
-	//Insert hyperlink
-	InsertHyperlink(section);
-
-	//Save doc file.
-	document->SaveToFile(outputFile.c_str(), FileFormat::Docx);
-	document->Close();
-	delete document;
-}
-
-void InsertHyperlink(Section* section)
+void InsertHyperlink(intrusive_ptr<Section> section)
 {
-	Paragraph* paragraph = section->GetParagraphs()->GetCount() > 0 ? section->GetParagraphs()->GetItem(0) : section->AddParagraph();
-	paragraph->AppendText(L"Spire.Doc for C++ \r\n e-iceblue company Ltd. 2002-2010 All rights reserverd");
+	intrusive_ptr<Paragraph> paragraph = section->GetParagraphs()->GetCount() > 0 ? section->GetParagraphs()->GetItemInParagraphCollection(0) : section->AddParagraph();
+	paragraph->AppendText(L"Spire.Doc for .NET \n e-iceblue company Ltd. 2002-2010 All rights reserverd");
 	paragraph->ApplyStyle(BuiltinStyle::Heading2);
 
 	paragraph = section->AddParagraph();
@@ -52,8 +36,26 @@ void InsertHyperlink(Section* section)
 	paragraph->AppendText(L"Insert Link On Image");
 	paragraph->ApplyStyle(BuiltinStyle::Heading2);
 	paragraph = section->AddParagraph();
-	wstring input_path = DATAPATH;
-	wstring imagePath = input_path + L"Spire.Doc.png";
-	DocPicture* picture = paragraph->AppendPicture(Image::FromFile(imagePath.c_str()));
+#if defined(SKIASHARP)
+	intrusive_ptr<DocPicture> picture = paragraph->AppendPicture(DataPath"/Demo/Spire.Doc.png");
+#else
+	intrusive_ptr<DocPicture> picture = paragraph->AppendPicture(DataPath"/Demo/Spire.Doc.png");
+#endif
 	paragraph->AppendHyperlink(L"www.e-iceblue.com/Download/download-word-for-net-now.html", picture, HyperlinkType::WebLink);
+}
+
+int main()
+{
+	std::wstring outputFile = OUTPUTPATH"/Hyperlink.docx";
+
+	//Open a blank word document as template
+	intrusive_ptr<Document> document =new Document();
+	intrusive_ptr<Section> section = document->AddSection();
+
+	//Insert hyperlink
+	InsertHyperlink(section);
+
+	//Save doc file.
+	document->SaveToFile(outputFile.c_str(), FileFormat::Docx);
+	document->Close();
 }

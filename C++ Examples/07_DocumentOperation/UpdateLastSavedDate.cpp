@@ -1,14 +1,25 @@
 #include "pch.h"
-using namespace Spire::Doc;
-using namespace Spire::Common;
 
-int main() {
+
+using namespace Spire::Doc;
+
+intrusive_ptr<DateTime> LocalTimeToGreenwishTime(intrusive_ptr<DateTime> lacalTime)
+{
+	intrusive_ptr<TimeZone> localTimeZone = TimeZone::GetCurrentTimeZone();
+	intrusive_ptr<TimeSpan> timeSpan = localTimeZone->GetUtcOffset(lacalTime);
+
+	intrusive_ptr<DateTime> greenwishTime = DateTime::op_Subtraction(lacalTime, timeSpan);
+	return greenwishTime;
+}
+
+int main()
+{
 	wstring input_path = DATAPATH;
-	wstring inputFile = input_path + L"Template.docx";
 	wstring output_path = OUTPUTPATH;
+	wstring inputFile = input_path + L"Template.docx";
 	wstring outputFile = output_path + L"UpdateLastSavedDate.docx";
 
-	Document* document = new Document();
+	intrusive_ptr<Document> document =  new Document();
 
 	//Load the document from disk
 	document->LoadFromFile(inputFile.c_str());
@@ -17,13 +28,5 @@ int main() {
 	document->GetBuiltinDocumentProperties()->SetLastSaveDate(LocalTimeToGreenwishTime(DateTime::GetNow()));
 	document->SaveToFile(outputFile.c_str(), FileFormat::Docx);
 	document->Close();
-	delete document;
-}
 
-DateTime* LocalTimeToGreenwishTime(DateTime* lacalTime)
-{
-	TimeZone* localTimeZone = TimeZone::GetCurrentTimeZone();
-	TimeSpan* timeSpan = localTimeZone->GetUtcOffset(lacalTime);
-	DateTime* greenwishTime = Spire::Common::DateTime::op_Subtraction(lacalTime, timeSpan);
-	return greenwishTime;
 }

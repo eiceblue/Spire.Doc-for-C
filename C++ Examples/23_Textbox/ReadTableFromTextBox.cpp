@@ -8,38 +8,37 @@ int main() {
 	wstring outputFile = output_path + L"ReadTableFromTextBox.txt";
 
 	//Load the document
-	Document* doc = new Document();
+	intrusive_ptr<Document> doc = new Document();
 	doc->LoadFromFile(inputFile.c_str());
 
 	//Get the first textbox
-	TextBox* textbox = doc->GetTextBoxes()->GetItem(0);
+	intrusive_ptr<TextBox> textbox = doc->GetTextBoxes()->GetItem(0);
 
 	//Get the first table in the textbox
-	Table* table = dynamic_cast<Table*>(textbox->GetBody()->GetTables()->GetItemInTableCollection(0));
+	intrusive_ptr<Table> table = Object::Dynamic_cast<Table>(textbox->GetBody()->GetTables()->GetItemInTableCollection(0));
 
-	wstring* string_builder = new wstring();
+	wstring stringBuilder;
 
 	//Loop through the paragraphs of the table cells and extract them to a .txt file
 	for (int i = 0; i < table->GetRows()->GetCount(); i++)
 	{
-		TableRow* row = table->GetRows()->GetItem(i);
+		intrusive_ptr<TableRow> row = table->GetRows()->GetItemInRowCollection(i);
 		for (int j = 0; j < row->GetCells()->GetCount(); j++)
 		{
-			TableCell* cell = row->GetCells()->GetItem(j);
+			intrusive_ptr<TableCell> cell = row->GetCells()->GetItemInCellCollection(j);
 			for (int k = 0; k < cell->GetParagraphs()->GetCount(); k++)
 			{
-				Paragraph* paragraph = cell->GetParagraphs()->GetItem(k);
-				string_builder->append(paragraph->GetText());
-				string_builder->append(L"\t");
+				intrusive_ptr<Paragraph> paragraph = cell->GetParagraphs()->GetItemInParagraphCollection(k);
+				stringBuilder.append(paragraph->GetText());
+				stringBuilder.append(L"\t");
 			}
 		}
-		string_builder->append(L"\n");
+		stringBuilder.append(L"\n");
 	}
 
 	//Save to TXT file and launch it
 	wofstream foo(outputFile);
-	foo << string_builder->c_str();
+	foo << stringBuilder.c_str();
 	foo.close();
 	doc->Close();
-	delete doc;
 }

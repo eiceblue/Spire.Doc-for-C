@@ -8,11 +8,11 @@ int main() {
 	wstring outputFile = output_path + L"DeleteTableFromTextBox.docx";
 
 	//Load the document
-	Document* doc = new Document();
+	intrusive_ptr<Document> doc = new Document();
 	doc->LoadFromFile(inputFile.c_str());
 
 	//Get the first textbox
-	TextBox* textbox = doc->GetTextBoxes()->GetItem(0);
+	intrusive_ptr<TextBox> textbox = doc->GetTextBoxes()->GetItem(0);
 
 	//Remove the first table from the textbox
 	textbox->GetBody()->GetTables()->RemoveAt(0);
@@ -20,5 +20,4 @@ int main() {
 	//Save and launch document
 	doc->SaveToFile(outputFile.c_str(), FileFormat::Docx);
 	doc->Close();
-	delete doc;
 }

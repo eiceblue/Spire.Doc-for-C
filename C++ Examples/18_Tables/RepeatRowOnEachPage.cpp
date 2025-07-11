@@ -1,35 +1,39 @@
 #include "pch.h"
+
 using namespace Spire::Doc;
-using namespace Spire::Common;
 
-
-int main() {
-	wstring output_path = OUTPUTPATH;
-	wstring outputFile = output_path + L"RepeatRowOnEachPage.docx";
+int main()
+{
+	std::wstring outputFile = OUTPUTPATH"/RepeatRowOnEachPage.docx";
 
 	//Create word document
-	Document* document = new Document();
-
+	intrusive_ptr<Document> document = new Document();
 	//Create a new section
-	Section* section = document->AddSection();
+	intrusive_ptr<Section> section = document->AddSection();
 
 	//Create a table width default borders
-	Table* table = section->AddTable(true);
+	intrusive_ptr<Table> table = section->AddTable(true);
 	//Set table with to 100%
-	PreferredWidth* width = new PreferredWidth(WidthType::Percentage, 100);
+	intrusive_ptr<PreferredWidth> width = new PreferredWidth(WidthType::Percentage, 100);
 	table->SetPreferredWidth(width);
 
 	//Add a new row 
-	TableRow* row = table->AddRow();
+	intrusive_ptr<TableRow> row = table->AddRow();
 	//Set the row as a table header 
-	row->SetIsHeader(width);
-	//Set the backcolor of row
-	row->GetRowFormat()->SetBackColor(Color::GetLightGray());
+	row->SetIsHeader(true);
+
 	//Add a new cell for row
-	TableCell* cell = row->AddCell();
+	intrusive_ptr<TableCell> cell = row->AddCell();
+
+	//Set the backcolor of row
+	for (int i = 0; i < row->GetCells()->GetCount(); i++)
+	{
+		row->GetCells()->GetItemInCellCollection(i)->GetCellFormat()->GetShading()->SetBackgroundPatternColor(Color::GetLightGray());
+	}
+
 	cell->SetCellWidth(100, CellWidthType::Percentage);
 	//Add a paragraph for cell to put some data
-	Paragraph* parapraph = cell->AddParagraph();
+	intrusive_ptr<Paragraph> parapraph = cell->AddParagraph();
 	//Add text 
 	parapraph->AppendText(L"Row Header 1");
 	//Set paragraph horizontal center alignment
@@ -37,10 +41,15 @@ int main() {
 
 	row = table->AddRow(false, 1);
 	row->SetIsHeader(true);
-	row->GetRowFormat()->SetBackColor(Color::GetIvory());
+
+	for (int i = 0; i < row->GetCells()->GetCount(); i++)
+	{
+		row->GetCells()->GetItemInCellCollection(i)->GetCellFormat()->GetShading()->SetBackgroundPatternColor(Color::GetIvory());
+	}
+
 	//Set row height
 	row->SetHeight(30);
-	cell = row->GetCells()->GetItem(0);
+	cell = row->GetCells()->GetItemInCellCollection(0);
 	cell->SetCellWidth(100, CellWidthType::Percentage);
 	//Set cell vertical middle alignment
 	cell->GetCellFormat()->SetVerticalAlignment(VerticalAlignment::Middle);
@@ -54,11 +63,11 @@ int main() {
 	for (int i = 0; i < 70; i++)
 	{
 		row = table->AddRow(false, 2);
-		cell = row->GetCells()->GetItem(0);
+		cell = row->GetCells()->GetItemInCellCollection(0);
 		//Set cell width to 50% of table width
 		cell->SetCellWidth(50, CellWidthType::Percentage);
 		cell->AddParagraph()->AppendText(L"Column 1 Text");
-		cell = row->GetCells()->GetItem(1);
+		cell = row->GetCells()->GetItemInCellCollection(1);
 		cell->SetCellWidth(50, CellWidthType::Percentage);
 		cell->AddParagraph()->AppendText(L"Column 2 Text");
 	}
@@ -67,10 +76,10 @@ int main() {
 	{
 		if (j % 2 == 0)
 		{
-			TableRow* row2 = table->GetRows()->GetItem(j);
+			intrusive_ptr<TableRow> row2 = table->GetRows()->GetItemInRowCollection(j);
 			for (int f = 0; f < row2->GetCells()->GetCount(); f++)
 			{
-				row2->GetCells()->GetItem(f)->GetCellFormat()->SetBackColor(Color::GetLightBlue());
+				row2->GetCells()->GetItemInCellCollection(f)->GetCellFormat()->GetShading()->SetBackgroundPatternColor(Color::GetLightBlue());
 			}
 		}
 
@@ -79,5 +88,5 @@ int main() {
 	//Save file.
 	document->SaveToFile(outputFile.c_str(), FileFormat::Docx);
 	document->Close();
-	delete document;
+
 }

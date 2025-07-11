@@ -1,50 +1,54 @@
 #include "pch.h"
+#include <locale>
+#include <codecvt>
+#include <fstream>
 using namespace Spire::Doc;
 
-int main() {
-	wstring input_path = DATAPATH;
-	wstring inputFile = input_path + L"CellMergeStatus.docx";
-	wstring output_path = OUTPUTPATH;
-	wstring outputFile = output_path + L"CellMergeStatus.txt";
+int main()
+{
+	std::wstring outputFile = OUTPUTPATH"/CellMergeStatus.txt";
+	std::wstring inputFile = DATAPATH"/CellMergeStatus.docx";
+	
 
-	Document* doc = new Document();
+	intrusive_ptr<Document> doc = new Document();
 	doc->LoadFromFile(inputFile.c_str());
 
 	//Get the first section
-	Section* section = doc->GetSections()->GetItem(0);
+	intrusive_ptr<Section> section = doc->GetSections()->GetItemInSectionCollection(0);
 
 	//Get the first table in the section
-	Table* table = dynamic_cast<Table*>(section->GetTables()->GetItemInTableCollection(0));
+	intrusive_ptr<Table> table = Object::Dynamic_cast<Table>(section->GetTables()->GetItemInTableCollection(0));
 
-	wstring* stringBuidler = new wstring();
+	std::wstring stringBuidler;
 	for (int i = 0; i < table->GetRows()->GetCount(); i++)
 	{
-		TableRow* tableRow = table->GetRows()->GetItem(i);
+		intrusive_ptr<TableRow> tableRow = table->GetRows()->GetItemInRowCollection(i);
 		for (int j = 0; j < tableRow->GetCells()->GetCount(); j++)
 		{
-			TableCell* tableCell = tableRow->GetCells()->GetItem(j);
+			intrusive_ptr<TableCell> tableCell = tableRow->GetCells()->GetItemInCellCollection(j);
 			CellMerge verticalMerge = tableCell->GetCellFormat()->GetVerticalMerge();
 			short horizontalMerge = tableCell->GetGridSpan();
 
 			if (verticalMerge == CellMerge::None && horizontalMerge == 1)
 			{
-				stringBuidler->append(L"Row " + to_wstring(i) + L", cell " + to_wstring(j) + L": ");
-				stringBuidler->append(L"This cell isn't merged.\r\n");
+				stringBuidler.append(L"Row " + std::to_wstring(i) + L", cell " + std::to_wstring(j) + L": ");
+				stringBuidler.append(L"This cell isn't merged.\n");
 			}
 			else
 			{
-				stringBuidler->append(L"Row " + to_wstring(i) + L", cell " + to_wstring(j) + L": ");
-				stringBuidler->append(L"This cell is merged.\r\n");
+				stringBuidler.append(L"Row " + std::to_wstring(i) + L", cell " + std::to_wstring(j) + L": ");
+				stringBuidler.append(L"This cell is merged.\n");
 			}
 		}
-		stringBuidler->append(L"\r\n");
+		stringBuidler.append(L"\n");
 	}
 
-	//Save and launch document
-	wofstream write(outputFile);
-	write << stringBuidler->c_str();
+	//Save document
+	std::wofstream write(outputFile);
+	auto LocUtf8 = locale(locale(""), new std::codecvt_utf8<wchar_t>);
+	write.imbue(LocUtf8);
+	write << stringBuidler;
 	write.close();
+	
 	doc->Close();
-	delete doc;
-	delete stringBuidler;
 }

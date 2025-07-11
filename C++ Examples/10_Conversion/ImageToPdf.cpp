@@ -8,13 +8,13 @@ int main() {
 	wstring outputFile = output_path + L"ImageToPdf.pdf";
 
 	//Create a new document
-	Document* doc = new Document();
+	intrusive_ptr<Document>  doc = new Document();
 	//Create a new section
-	Section* section = doc->AddSection();
+	intrusive_ptr<Section> section = doc->AddSection();
 	//Create a new paragraph
-	Paragraph* paragraph = section->AddParagraph();
+	intrusive_ptr<Paragraph> paragraph = section->AddParagraph();
 	//Add a picture for paragraph
-	DocPicture* picture = paragraph->AppendPicture(inputFile.c_str());
+	intrusive_ptr<DocPicture> picture = paragraph->AppendPicture(inputFile.c_str());
 	//Set the page size to the same size as picture
 	section->GetPageSetup()->SetPageSize(new SizeF(picture->GetWidth(), picture->GetHeight()));
 	//Set A4 page size

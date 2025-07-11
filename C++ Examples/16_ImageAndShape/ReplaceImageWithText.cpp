@@ -1,29 +1,28 @@
 #include "pch.h"
 using namespace Spire::Doc;
 
-int main() {
-	wstring input_path = DATAPATH;
-	wstring inputFile = input_path  + L"ImageTemplate.docx";
-	wstring output_path = OUTPUTPATH;
-	wstring outputFile = output_path + L"ReplaceImageWithText.docx";
+int main() 
+{
+	std::wstring outputFile = OUTPUTPATH"/ReplaceImageWithText.docx";
+	std::wstring inputFile = DATAPATH"/ImageTemplate.docx";
 
 	//Load Document
-	Document* doc = new Document();
+	intrusive_ptr<Document> doc = new Document();
 	doc->LoadFromFile(inputFile.c_str());
 
 	//Replace all pictures with texts
 	int j = 1;
 	for (int i = 0; i < doc->GetSections()->GetCount(); i++)
 	{
-		Section* sec = doc->GetSections()->GetItem(i);
+		intrusive_ptr<Section> sec = doc->GetSections()->GetItemInSectionCollection(i);
 		for (int k = 0; k < sec->GetParagraphs()->GetCount(); k++)
 		{
-			Paragraph* para = sec->GetParagraphs()->GetItem(k);
-			vector<DocumentObject*> pictures;
+			intrusive_ptr<Paragraph> para = sec->GetParagraphs()->GetItemInParagraphCollection(k);
+			std::vector<intrusive_ptr<DocumentObject>> pictures;
 			//Get all pictures in the Word document
 			for (int m = 0; m < para->GetChildObjects()->GetCount(); m++)
 			{
-				DocumentObject* docObj = para->GetChildObjects()->GetItem(m);
+				intrusive_ptr<DocumentObject> docObj = para->GetChildObjects()->GetItem(m);
 				if (docObj->GetDocumentObjectType() == DocumentObjectType::Picture)
 				{
 					pictures.push_back(docObj);
@@ -34,8 +33,8 @@ int main() {
 			for (auto pic : pictures)
 			{
 				int index = para->GetChildObjects()->IndexOf(pic);
-				TextRange* range = new TextRange(doc);
-				wstring temp= L"Here was image " + to_wstring(j) + L"";
+				intrusive_ptr<TextRange> range = new TextRange(doc);
+				wstring temp = L"Here was image " + to_wstring(j) + L"";
 				range->SetText(temp.c_str());
 				para->GetChildObjects()->Insert(index, range);
 				para->GetChildObjects()->Remove(pic);
@@ -47,5 +46,4 @@ int main() {
 	//Save and launch document
 	doc->SaveToFile(outputFile.c_str(), FileFormat::Docx);
 	doc->Close();
-	delete doc;
 }

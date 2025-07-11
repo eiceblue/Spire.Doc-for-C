@@ -1,39 +1,18 @@
 #include "pch.h"
 using namespace Spire::Doc;
 
-int main() {
-	wstring input_path = DATAPATH;
-	wstring inputFile = input_path + L"Sample.docx";
-	wstring output_path = OUTPUTPATH;
-	wstring outputFile = output_path + L"HeaderAndFooter.docx";
-
-	//Create word document
-	Document* document = new Document();
-
-	document->LoadFromFile(inputFile.c_str());
-	Section* section = document->GetSections()->GetItem(0);
-
-	//insert header and footer
-	InsertHeaderAndFooter(section);
-
-	//Save as docx file.
-	document->SaveToFile(outputFile.c_str(), FileFormat::Docx);
-	document->Close();
-	delete document;
-}
-
-void InsertHeaderAndFooter(Section* section)
+void InsertHeaderAndFooter(intrusive_ptr<Section> section)
 {
-	HeaderFooter* header = section->GetHeadersFooters()->GetHeader();
-	HeaderFooter* footer = section->GetHeadersFooters()->GetFooter();
+	intrusive_ptr<HeaderFooter> header = section->GetHeadersFooters()->GetHeader();
+	intrusive_ptr<HeaderFooter> footer = section->GetHeadersFooters()->GetFooter();
 
 	//insert picture and text to header
-	Paragraph* headerParagraph = header->AddParagraph();
-	wstring input_path = DATAPATH;
-	wstring imagePath1 = input_path + L"Header.png";
-	DocPicture* headerPicture = headerParagraph->AppendPicture(Image::FromFile(imagePath1.c_str()));
+	intrusive_ptr<Paragraph> headerParagraph = header->AddParagraph();
+
+	intrusive_ptr<DocPicture> headerPicture = headerParagraph->AppendPicture(DATAPATH"/Header.png");
+
 	//header text
-	TextRange* text = headerParagraph->AppendText(L"Demo of Spire.Doc");
+	intrusive_ptr<TextRange> text = headerParagraph->AppendText(L"Demo of Spire.Doc");
 	text->GetCharacterFormat()->SetFontName(L"Arial");
 	text->GetCharacterFormat()->SetFontSize(10);
 	text->GetCharacterFormat()->SetItalic(true);
@@ -54,9 +33,10 @@ void InsertHeaderAndFooter(Section* section)
 	headerPicture->SetVerticalAlignment(ShapeVerticalAlignment::Top);
 
 	//insert picture to footer
-	Paragraph* footerParagraph = footer->AddParagraph();
-	wstring imagePath2 = input_path + L"Footer.png";
-	DocPicture* footerPicture = footerParagraph->AppendPicture(Image::FromFile(imagePath2.c_str()));
+	intrusive_ptr<Paragraph> footerParagraph = footer->AddParagraph();
+
+	intrusive_ptr<DocPicture> footerPicture = footerParagraph->AppendPicture(DATAPATH"/Footer.png");
+
 	//footer picture layout
 	footerPicture->SetTextWrappingStyle(TextWrappingStyle::Behind);
 	footerPicture->SetHorizontalOrigin(HorizontalOrigin::Page);
@@ -73,4 +53,23 @@ void InsertHeaderAndFooter(Section* section)
 	//border
 	footerParagraph->GetFormat()->GetBorders()->GetTop()->SetBorderType(BorderStyle::Single);
 	footerParagraph->GetFormat()->GetBorders()->GetTop()->SetSpace(0.05F);
+}
+
+int main()
+{
+	std::wstring outputFile = OUTPUTPATH"/HeaderAndFooter.docx";
+	std::wstring inputFile = DATAPATH"/Sample.docx";
+
+	//Create word document
+	intrusive_ptr<Document> document = new Document();
+
+	document->LoadFromFile(inputFile.c_str());
+	intrusive_ptr<Section> section = document->GetSections()->GetItemInSectionCollection(0);
+
+	//insert header and footer
+	InsertHeaderAndFooter(section);
+
+	//Save as docx file.
+	document->SaveToFile(outputFile.c_str(), FileFormat::Docx);
+	document->Close();
 }

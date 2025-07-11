@@ -1,15 +1,20 @@
 #include "pch.h"
+#include <locale>
+#include <codecvt>
+
 using namespace Spire::Doc;
 
-int main() {
+
+int main()
+{
 	wstring input_path = DATAPATH;
-	wstring inputFile = input_path + L"Template.docx";
 	wstring output_path = OUTPUTPATH;
+	wstring inputFile = input_path + L"Template.docx";
 	wstring outputFile = output_path + L"CheckFileFormat.txt";
 
-	Document* doc = new Document();
+	intrusive_ptr<Document> doc =  new Document();
 	doc->LoadFromFile(inputFile.c_str());
-	wstring fileFormat = L"The file format is ";
+	std::wstring fileFormat = L"The file format is ";
 	//Check the format info
 	switch (doc->GetDetectedFormatType())
 	{
@@ -58,11 +63,11 @@ int main() {
 	}
 
 	//Save to file.
-	wofstream out;
-	out.open(outputFile);
-	out.flush();
-	out << fileFormat.c_str();
-	out.close();
+	std::wofstream write(outputFile);
+	auto LocUtf8 = locale(locale(""), new std::codecvt_utf8<wchar_t>);
+	write.imbue(LocUtf8);
+	write << fileFormat;
+	write.close();
 	doc->Close();
-	delete doc;
+
 }

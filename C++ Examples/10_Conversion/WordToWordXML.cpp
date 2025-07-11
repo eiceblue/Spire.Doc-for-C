@@ -1,6 +1,7 @@
 #include "pch.h"
 using namespace Spire::Doc;
 
+
 int main() {
 	wstring input_path = DATAPATH;
 	wstring inputFile = input_path + L"Template_Docx_1.docx";
@@ -9,7 +10,7 @@ int main() {
 	wstring outputFile_2007 = output_path + L"WordToWordXML.xml";
 
 	//Create Word document.
-	Document* document = new Document();
+	intrusive_ptr<Document> document = new Document();
 
 	//Load the file from disk.
 	document->LoadFromFile(inputFile.c_str());
@@ -20,5 +21,5 @@ int main() {
 	//For word 2007:
 	document->SaveToFile(outputFile_2007.c_str(), FileFormat::WordXml);
 	document->Close();
-	delete document;
+
 }

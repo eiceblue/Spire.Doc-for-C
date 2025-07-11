@@ -1,5 +1,6 @@
-#include "pch.h"
+#include "../pch.h"
 using namespace Spire::Doc;
+
 
 int main() {
 	wstring input_path = DATAPATH;
@@ -8,7 +9,7 @@ int main() {
 	wstring outputFile = output_path + L"HtmlToXps.xps";
 
 	//Create Word document.
-	Document* document = new Document();
+	intrusive_ptr<Document> document = new Document();
 
 	//Load the file from disk.
 	document->LoadFromFile(inputFile.c_str(), FileFormat::Html, XHTMLValidationType::None);
@@ -16,5 +17,5 @@ int main() {
 	//Save to file.
 	document->SaveToFile(outputFile.c_str(), FileFormat::XPS);
 	document->Close();
-	delete document;
 }
+

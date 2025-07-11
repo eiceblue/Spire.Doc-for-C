@@ -1,6 +1,7 @@
 #include "pch.h"
 using namespace Spire::Doc;
 
+
 int main() {
 	wstring input_path = DATAPATH;
 	wstring inputFile = input_path + L"Template_Docx_1.docx";
@@ -8,24 +9,21 @@ int main() {
 	wstring outputFile = output_path + L"AddPageBorders.docx";
 
 	//Create Word document.
-	Document* document = new Document();
+	intrusive_ptr<Document> document = new Document();
 
 	//Load the file from disk.
 	document->LoadFromFile(inputFile.c_str());
 
-	//Set the start value of the line numbers.
-	document->GetSections()->GetItem(0)->GetPageSetup()->SetLineNumberingStartValue(1);
+	//Define the border style.
+	document->GetSections()->GetItemInSectionCollection(0)->GetPageSetup()->GetBorders()->SetBorderType(BorderStyle::DotDash);
 
-	//Set the interval between displayed numbers.
-	document->GetSections()->GetItem(0)->GetPageSetup()->SetLineNumberingStep(6);
+	//Define the border color.
+	document->GetSections()->GetItemInSectionCollection(0)->GetPageSetup()->GetBorders()->SetColor(Color::GetRed());
 
-	//Set the distance between line numbers and text.
-	document->GetSections()->GetItem(0)->GetPageSetup()->SetLineNumberingDistanceFromText(40.0f);
-	//Set the numbering mode of line numbers. There are four choices: None, Continuous, RestartPage and RestartSection.
-	document->GetSections()->GetItem(0)->GetPageSetup()->SetLineNumberingRestartMode(LineNumberingRestartMode::Continuous);
+	//Set the line width.
+	document->GetSections()->GetItemInSectionCollection(0)->GetPageSetup()->GetBorders()->SetLineWidth(2);
 
 	//Save to file.
 	document->SaveToFile(outputFile.c_str(), FileFormat::Docx2013);
 	document->Close();
-	delete document;
 }

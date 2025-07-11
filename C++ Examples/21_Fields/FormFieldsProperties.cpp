@@ -1,22 +1,21 @@
 #include "pch.h"
-using namespace Spire::Doc;
-using namespace Spire::Common;
 
-int main() {
-	wstring input_path = DATAPATH;
-	wstring inputFile = input_path + L"FillFormField.doc";
-	wstring output_path = OUTPUTPATH;
-	wstring outputFile = output_path + L"FormFieldsProperties.docx";
+using namespace Spire::Doc;
+
+int main()
+{
+	std::wstring outputFile = OUTPUTPATH"/FormFieldsProperties.docx";
+	std::wstring inputFile = DATAPATH"/FillFormField.doc";
 
 	//Open a Word document
-	Document* document = new Document();
+	intrusive_ptr<Document> document = new Document();
 	document->LoadFromFile(inputFile.c_str());
 
 	//Get the first section
-	Section* section = document->GetSections()->GetItem(0);
+	intrusive_ptr<Section> section = document->GetSections()->GetItemInSectionCollection(0);
 
 	//Get FormField by index
-	FormField* formField = section->GetBody()->GetFormFields()->GetItem(1);
+	intrusive_ptr<FormField> formField = section->GetBody()->GetFormFields()->GetItem(1);
 
 	if (formField->GetType() == FieldType::FieldFormTextInput)
 	{
@@ -29,5 +28,4 @@ int main() {
 
 	document->SaveToFile(outputFile.c_str(), FileFormat::Docx);
 	document->Close();
-	delete document;
 }

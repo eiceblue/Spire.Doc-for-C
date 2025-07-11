@@ -1,18 +1,17 @@
 #include "pch.h"
 using namespace Spire::Doc;
 
-int main() {
-	wstring output_path = OUTPUTPATH;
-	wstring outputFile = output_path + L"AddHorizontalLine.docx";
+
+int main()
+{
+	std::wstring outputFile = OUTPUTPATH"/AddHorizontalLine.docx";
 
 	//Create Word document.
-	Document* doc = new Document();
-	Section* sec = doc->AddSection();
-	Paragraph* para = sec->AddParagraph();
+	intrusive_ptr<Document> doc = new Document();
+	intrusive_ptr<Section> sec = doc->AddSection();
+	intrusive_ptr<Paragraph> para = sec->AddParagraph();
 	para->AppendHorizonalLine();
-
 	//Save and launch document
 	doc->SaveToFile(outputFile.c_str(), FileFormat::Docx);
 	doc->Close();
-	delete doc;
 }

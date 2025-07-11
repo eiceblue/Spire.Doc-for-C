@@ -1,41 +1,44 @@
 #include "pch.h"
+#include <fstream>
+#include <locale>
+#include <codecvt>
+
 using namespace Spire::Doc;
 
-int main() {
-	wstring input_path = DATAPATH;
-	wstring inputFile = input_path + L"Hyperlinks.docx";
-	wstring output_path = OUTPUTPATH;
-	wstring outputFile = output_path + L"FindHyperlinks.txt";
+int main()
+{
+	std::wstring outputFile = OUTPUTPATH"/FindHyperlinks.txt";
+	std::wstring inputFile = DATAPATH"/Hyperlinks.docx";
 
 	//Load Document
-	Document* doc = new Document();
+	intrusive_ptr<Document> doc = new Document();
 	doc->LoadFromFile(inputFile.c_str());
 
 	//Create a hyperlink list
-	vector<Field*> hyperlinks;
-	wstring hyperlinksText = L"";
+	std::vector<intrusive_ptr<Field>> hyperlinks;
+	std::wstring hyperlinksText = L"";
 	//Iterate through the items in the sections to find all hyperlinks
 	for (int i = 0; i < doc->GetSections()->GetCount(); i++)
 	{
-		Section* section = doc->GetSections()->GetItem(i);
+		intrusive_ptr<Section> section = doc->GetSections()->GetItemInSectionCollection(i);
 		for (int j = 0; j < section->GetBody()->GetChildObjects()->GetCount(); j++)
 		{
-			DocumentObject* docObj = section->GetBody()->GetChildObjects()->GetItem(j);
+			intrusive_ptr<DocumentObject> docObj = section->GetBody()->GetChildObjects()->GetItem(j);
 			if (docObj->GetDocumentObjectType() == DocumentObjectType::Paragraph)
 			{
-				Paragraph* para = dynamic_cast<Paragraph*>(docObj);
+				intrusive_ptr<Paragraph> para = Object::Dynamic_cast<Paragraph>(docObj);
 				for (int k = 0; k < para->GetChildObjects()->GetCount(); k++)
 				{
-					DocumentObject* obj = para->GetChildObjects()->GetItem(k);
+					intrusive_ptr<DocumentObject> obj = para->GetChildObjects()->GetItem(k);
 					if (obj->GetDocumentObjectType() == DocumentObjectType::Field)
 					{
-						Field* field = dynamic_cast<Field*>(obj);
+						intrusive_ptr<Field> field = Object::Dynamic_cast<Field>(obj);
 						if (field->GetType() == FieldType::FieldHyperlink)
 						{
 							hyperlinks.push_back(field);
 							//Get the hyperlink text
-							wstring text = field->GetFieldText();
-							hyperlinksText.append(text.append(L"\r\n"));
+							std::wstring text = field->GetFieldText();
+							hyperlinksText.append(text.append(L"\n"));
 						}
 					}
 				}
@@ -43,17 +46,13 @@ int main() {
 		}
 	}
 
-	for (int i = 0; i < doc->GetSections()->GetCount(); i++)
-	{
-		if (strcmp(typeid(doc->GetSections()->GetItem(i)).name(), typeid(Section).name()))
-			Section sec = *doc->GetSections()->GetItem(i);
-	}
 
-	//Save the text of all hyperlinks to TXT File and launch it
-	wofstream write(outputFile);
+	//Save the text of all hyperlinks to TXT File 
+	std::wofstream write(outputFile);
+	auto LocUtf8 = locale(locale(""), new std::codecvt_utf8<wchar_t>);
+	write.imbue(LocUtf8);
 	write << hyperlinksText;
 	write.close();
-	//File::WriteAllText(outputFile.c_str(), hyperlinksText);
+
 	doc->Close();
-	delete doc;
 }

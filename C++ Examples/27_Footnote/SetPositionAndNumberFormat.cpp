@@ -8,11 +8,11 @@ int main() {
 	wstring outputFile = output_path + L"SetPositionAndNumberFormat.docx";
 
 	//Load the document
-	Document* doc = new Document();
+	intrusive_ptr<Document> doc = new Document();
 	doc->LoadFromFile(inputFile.c_str());
 
 	//Get the first section
-	Section* sec = doc->GetSections()->GetItem(0);
+	intrusive_ptr<Section> sec = doc->GetSections()->GetItemInSectionCollection(0);
 
 	//Set the number format, restart rule and position for the footnote
 	sec->GetFootnoteOptions()->SetNumberFormat(FootnoteNumberFormat::UpperCaseLetter);
@@ -22,5 +22,4 @@ int main() {
 	//Save and launch document
 	doc->SaveToFile(outputFile.c_str(), FileFormat::Docx);
 	doc->Close();
-	delete doc;
 }

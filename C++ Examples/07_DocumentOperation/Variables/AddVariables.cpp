@@ -6,13 +6,13 @@ int main() {
 	wstring outputFile = output_path + L"AddVariables.docx";
 
 	//Create Word document.
-	Document* document = new Document();
+	intrusive_ptr<Document> document = new Document();
 
 	//Add a section.
-	Section* section = document->AddSection();
+	intrusive_ptr<Section> section = document->AddSection();
 
 	//Add a paragraph.
-	Paragraph* paragraph = section->AddParagraph();
+	intrusive_ptr<Paragraph> paragraph = section->AddParagraph();
 
 	//Add a DocVariable field.
 	paragraph->AppendField(L"A1", FieldType::FieldDocVariable);
@@ -26,5 +26,4 @@ int main() {
 	//Save to file.
 	document->SaveToFile(outputFile.c_str(), FileFormat::Docx2013);
 	document->Close();
-	delete document;
 }

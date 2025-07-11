@@ -1,23 +1,22 @@
 #include "pch.h"
 using namespace Spire::Doc;
 
-int main() {
-	wstring input_path = DATAPATH;
-	wstring inputFile = input_path  + L"Comments.docx";
-	wstring output_path = OUTPUTPATH;
-	wstring outputFile = output_path + L"RemoveContentWithComment.docx";
-	
+int main()
+{
+	std::wstring outputFile = OUTPUTPATH"/RemoveContentWithComment.docx";
+	std::wstring inputFile = DATAPATH"/Comments.docx";
+
 	//Create a document
-	Document* document = new Document();
+	intrusive_ptr<Document> document = new Document();
 
 	//Load the document from disk.
 	document->LoadFromFile(inputFile.c_str());
 
 	//Get the first comment
-	Comment* comment = document->GetComments()->GetItem(0);
+	intrusive_ptr<Comment> comment = document->GetComments()->GetItem(0);
 
 	//Get the paragraph of obtained comment
-	Paragraph* para = comment->GetOwnerParagraph();
+	intrusive_ptr<Paragraph> para = comment->GetOwnerParagraph();
 
 	//Get index of the CommentMarkStart 
 	int startIndex = para->GetChildObjects()->IndexOf(comment->GetCommentMarkStart());
@@ -26,19 +25,19 @@ int main() {
 	int endIndex = para->GetChildObjects()->IndexOf(comment->GetCommentMarkEnd());
 
 	//Create a list
-	vector<TextRange*> list;
+	std::vector<intrusive_ptr<TextRange>> list;
 
 	//Get TextRanges between the indexes
 	for (int i = startIndex; i < endIndex; i++)
 	{
-		if (dynamic_cast<TextRange*>(para->GetChildObjects()->GetItem(i)) != nullptr)
+		if (Object::CheckType<TextRange>(para->GetChildObjects()->GetItem(i)))
 		{
-			list.push_back(dynamic_cast<TextRange*>(para->GetChildObjects()->GetItem(i)));
+			list.push_back(boost::dynamic_pointer_cast<TextRange>(para->GetChildObjects()->GetItem(i)));
 		}
 	}
 
 	//Insert a new TextRange
-	TextRange* textRange = new TextRange(document);
+	intrusive_ptr<TextRange> textRange = new TextRange(document);
 
 	//Set text is null
 	textRange->SetText(nullptr);
@@ -47,7 +46,7 @@ int main() {
 	para->GetChildObjects()->Insert(endIndex, textRange);
 
 	//Remove previous TextRanges
-	for (int i = 0; i < list.size(); i++)
+	for (size_t i = 0; i < list.size(); i++)
 	{
 		para->GetChildObjects()->Remove(list[i]);
 	}
@@ -55,5 +54,4 @@ int main() {
 	//Save the document.
 	document->SaveToFile(outputFile.c_str(), FileFormat::Docx);
 	document->Close();
-	delete document;
 }

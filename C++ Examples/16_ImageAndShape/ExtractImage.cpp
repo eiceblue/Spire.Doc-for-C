@@ -2,48 +2,52 @@
 #include <deque>
 using namespace Spire::Doc;
 
-int main() {
-	wstring input_path = DATAPATH;
-	wstring inputFile = input_path  + L"Template.docx";
-	wstring output_path = OUTPUTPATH;
-	wstring outputFile = output_path + L"ExtractImage/";
+int main()
+{
+	std::wstring outputFile = OUTPUTPATH"/ExtractImage/";
+	std::wstring inputFile = DATAPATH"/Template.docx";
 
 	//open document
-	Document* document = new Document();
+	intrusive_ptr<Document> document = new Document();
 	document->LoadFromFile(inputFile.c_str());
 
 	//document elements, each of them has child elements
-	deque<ICompositeObject*> nodes;
+	std::deque<intrusive_ptr<ICompositeObject>> nodes;
 	nodes.push_back(document);
 
 	//embedded images list.
-	vector<Image*> images;
+	std::vector<std::vector<byte>> images;
 	//traverse
 	while (nodes.size() > 0)
 	{
-		ICompositeObject* node = nodes.front();
+		intrusive_ptr<ICompositeObject> node = nodes.front();
 		nodes.pop_front();
-		for (int  i =0;i<node->GetChildObjects()->GetCount();i++)
+		for (int i = 0; i < node->GetChildObjects()->GetCount(); i++)
 		{
-			IDocumentObject* child = node->GetChildObjects()->GetItem(i);
+			intrusive_ptr<IDocumentObject> child = node->GetChildObjects()->GetItem(i);
 			if (child->GetDocumentObjectType() == DocumentObjectType::Picture)
 			{
-				DocPicture* picture = dynamic_cast<DocPicture*>(child);
-				images.push_back(picture->GetImage());
+				intrusive_ptr<DocPicture> picture = Object::Dynamic_cast<DocPicture>(child);
+				std::vector<byte> imageByte = picture->GetImageBytes();
+				images.push_back(imageByte);
 			}
-			else if (dynamic_cast<ICompositeObject*>(child) != nullptr)
+			else if (Object::CheckType<ICompositeObject>(child))
 			{
-				nodes.push_back(dynamic_cast<ICompositeObject*>(child));
+				nodes.push_back(boost::dynamic_pointer_cast<ICompositeObject>(child));
 			}
-
 		}
 	}
 	//save images
-	for (int i = 0; i < images.size(); i++)
+	for (size_t i = 0; i < images.size(); i++)
 	{
-		wstring fileName = L"Image-" + to_wstring(i) + L".png";
-		images[i]->Save((outputFile + fileName).c_str(), ImageFormat::GetPng());
+		std::wstring fileName = L"Image-" + to_wstring(i) + L".png";
+		std::wstring tempImagePath = outputFile + fileName;
+		std::ofstream outFile(tempImagePath, std::ios::binary);
+		if (outFile.is_open())
+		{
+			outFile.write(reinterpret_cast<const char*>(images[i].data()), images[i].size());
+			outFile.close();
+		}
 	}
 	document->Close();
-	delete document;
 }

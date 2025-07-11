@@ -1,35 +1,38 @@
 #include "pch.h"
+
+#include <fstream>
+#include <locale>
+#include <codecvt>
+
 using namespace Spire::Doc;
 
-int main() {
-	wstring input_path = DATAPATH;
-	wstring inputFile = input_path + L"MailMerge.doc";
-	wstring output_path = OUTPUTPATH;
-	wstring outputFile = output_path + L"GetMergeFieldName.txt";
+int main()
+{
+	std::wstring outputFile = OUTPUTPATH"/GetMergeFieldName.txt";
+	std::wstring inputFile = DATAPATH"/MailMerge.doc";
 
-	wstring* str = new wstring();
+	std::wstring stringBuilder;
 
 	//Open a Word document
-	Document* document = new Document();
+	intrusive_ptr<Document> document = new Document();
 	document->LoadFromFile(inputFile.c_str());
 
 	//Get merge field name
-	vector<LPCWSTR_S> fieldNames = document->GetMailMerge()->GetMergeFieldNames();
+	std::vector<LPCWSTR_S> fieldNames = document->GetMailMerge()->GetMergeFieldNames();
 
-	str->append(L"The document has " + to_wstring(fieldNames.size()) + L" merge fields.");
-	str->append(L" The below is the name of the merge field:\n");
+	stringBuilder.append(L"The document has " + std::to_wstring(fieldNames.size()) + L" merge fields.");
+	stringBuilder.append(L" The below is the name of the merge field:\n");
 	for (auto name : fieldNames)
 	{
-		str->append(name);
-		str->append(L"\n");
+		stringBuilder.append(name);
+		stringBuilder.append(L"\n");
 	}
 
-	wofstream out;
-	out.open(outputFile.c_str());
-	out.flush();
-	out << str->c_str();
-	out.close();
+	std::wofstream write(outputFile);
+	auto LocUtf8 = locale(locale(""), new std::codecvt_utf8<wchar_t>);
+	write.imbue(LocUtf8);
+	write << stringBuilder;
+	write.close();
+
 	document->Close();
-	delete document;
-	delete str;
 }

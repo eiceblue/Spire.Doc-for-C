@@ -8,7 +8,7 @@ int main() {
 	wstring outputFile = output_path + L"HtmlToPdf.pdf";
 
 	//Create Word document.
-	Document* document = new Document();
+	intrusive_ptr<Document> document = new Document();
 
 	//Load the file from disk.
 	document->LoadFromFile(inputFile.c_str(), FileFormat::Html, XHTMLValidationType::None);
@@ -16,5 +16,4 @@ int main() {
 	//Save to file.
 	document->SaveToFile(outputFile.c_str(), FileFormat::PDF);
 	document->Close();
-	delete document;
 }

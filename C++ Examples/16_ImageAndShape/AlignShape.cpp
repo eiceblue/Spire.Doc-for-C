@@ -1,28 +1,27 @@
 #include "pch.h"
 using namespace Spire::Doc;
 
-int main() {
-	wstring input_path = DATAPATH;
-	wstring inputFile = input_path  + L"Shapes.docx";
-	wstring output_path = OUTPUTPATH;
-	wstring outputFile = output_path + L"AlignShape.docx";
+int main()
+{
+	std::wstring outputFile = OUTPUTPATH"/AlignShape.docx";
+	std::wstring inputFile = DATAPATH"/Shapes.docx";
 
 	//Load Document
-	Document* doc = new Document();
+	intrusive_ptr<Document> doc = new Document();
 	doc->LoadFromFile(inputFile.c_str());
 
-	Section* section = doc->GetSections()->GetItem(0);
+	intrusive_ptr<Section> section = doc->GetSections()->GetItemInSectionCollection(0);
 
 	for (int i = 0; i < section->GetParagraphs()->GetCount(); i++)
 	{
-		Paragraph* para = section->GetParagraphs()->GetItem(i);
+		intrusive_ptr<Paragraph> para = section->GetParagraphs()->GetItemInParagraphCollection(i);
 		for (int j = 0; j < para->GetChildObjects()->GetCount(); j++)
 		{
-			DocumentObject* obj = para->GetChildObjects()->GetItem(j);
-			if (dynamic_cast<ShapeObject*>(obj) != nullptr)
+			intrusive_ptr<DocumentObject> obj = para->GetChildObjects()->GetItem(j);
+			if (Object::CheckType<ShapeObject>(obj))
 			{
 				//Set the horizontal alignment as center
-				(dynamic_cast<ShapeObject*>(obj))->SetHorizontalAlignment(ShapeHorizontalAlignment::Center);
+				(boost::dynamic_pointer_cast<ShapeObject>(obj))->SetHorizontalAlignment(ShapeHorizontalAlignment::Center);
 			}
 		}
 	}
@@ -30,5 +29,4 @@ int main() {
 	//Save and launch document
 	doc->SaveToFile(outputFile.c_str(), FileFormat::Docx);
 	doc->Close();
-	delete doc;
 }
